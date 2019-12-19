@@ -24,7 +24,7 @@ module Secretariat
     :buyer,
     :line_items,
     :currency_code,
-    :payment_code,
+    :payment_type,
     :payment_text,
     :tax_category,
     :tax_percent,
@@ -50,7 +50,12 @@ module Secretariat
       TAX_CATEGORY_CODES[tax_category] || 'S'
     end
 
+    def payment_code
+      PAYMENT_CODES[payment_type] || '1'
+    end
+
     def valid?
+      @errors = []
       tax = BigDecimal(tax_amount)
       basis = BigDecimal(basis_amount)
       calc_tax = basis * BigDecimal(tax_percent) / BigDecimal(100)

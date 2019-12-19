@@ -39,6 +39,7 @@ module Secretariat
     end
 
     def valid?
+      @errors = []
       unit_price = BigDecimal(unit_amount)
       charge_price = BigDecimal(charge_amount)
       tax = BigDecimal(tax_amount)

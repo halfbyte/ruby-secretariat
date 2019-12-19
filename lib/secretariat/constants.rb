@@ -22,7 +22,20 @@ module Secretariat
    :TAXEXEMPT => "E",
    :ZEROTAXPRODUCTS => "Z",
    :UNTAXEDSERVICE => "O",
-   :INTRACOMMUNITY => "K"
+   :INTRACOMMUNITY => "K",
+   :EXPORT => 'G'
+  }
+
+  PAYMENT_CODES = {
+   :BANKACCOUNT => "42",
+   :NOTSPECIFIED => "1",
+   :AUTOMATICCLEARING => "3",
+   :CASH => "10",
+   :CHECK => "20",
+   :DEBITADVICE => "31",
+   :CREDITCARD => "48",
+   :DEBIT => "49",
+   :COMPENSATION => "97",
   }
 
   TAX_EXEMPTION_REASONS = {

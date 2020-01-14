@@ -16,6 +16,8 @@ limitations under the License.
 
 require_relative 'secretariat/version'
 require_relative 'secretariat/constants'
+require_relative 'secretariat/helpers'
+require_relative 'secretariat/versioner'
 require_relative 'secretariat/validation_error'
 require_relative 'secretariat/invoice'
 require_relative 'secretariat/trade_party'

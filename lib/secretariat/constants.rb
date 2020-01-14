@@ -26,6 +26,16 @@ module Secretariat
    :EXPORT => 'G'
   }
 
+  TAX_CATEGORY_CODES_1 = {
+   :STANDARDRATE => "S",
+   :REVERSECHARGE => "AE",
+   :TAXEXEMPT => "E",
+   :ZEROTAXPRODUCTS => "Z",
+   :UNTAXEDSERVICE => "O",
+   :INTRACOMMUNITY => "IC",
+   :EXPORT => 'E'
+  }
+
   PAYMENT_CODES = {
    :BANKACCOUNT => "42",
    :NOTSPECIFIED => "1",
@@ -40,7 +50,8 @@ module Secretariat
 
   TAX_EXEMPTION_REASONS = {
     :REVERSECHARGE => 'Reverse Charge',
-    :INTRACOMMUNITY => ''
+    :INTRACOMMUNITY => 'Intra-community transaction',
+    :EXPORT => 'Export outside the EU'
   }
 
   UNIT_CODES = {

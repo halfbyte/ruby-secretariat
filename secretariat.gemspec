@@ -3,13 +3,13 @@ require 'rake'
 Gem::Specification.new do |s|
   s.name        = 'secretariat'
   s.version     = Secretariat::VERSION
-  s.date        = '2019-12-19'
+  s.date        = '2020-01-14'
   s.summary     = "A ZUGFeRD xml generator"
   s.description = "a tool to help generate and validate ZUGFeRD invoice xml files"
   s.authors     = ["Jan Krutisch"]
   s.email       = 'jan@krutisch.de'
   s.files       = FileList['lib/**/*.rb', 'schemas/*', 'README.md']
-  s.homepage    = 'https://github.com/halfbyte/secretariat'
+  s.homepage    = 'https://github.com/halfbyte/ruby-secretariat'
   s.license       = 'Apache-2.0'
 
   s.required_ruby_version = '>= 2.6.0'

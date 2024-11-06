@@ -15,6 +15,7 @@ limitations under the License.
 =end
 
 require 'nokogiri'
+require 'tmpdir'
 
 module Secretariat
   class Validator
@@ -55,7 +56,8 @@ module Secretariat
       Dir.mktmpdir do |dir|
         docpath = File.join(dir, 'doc.xml')
         File.write(docpath, doc, mode: 'wb')
-        out = `java -jar bin/schxslt-cli.jar -v -d #{docpath} -s #{schematron_path}`
+        jarpath = File.join(__dir__, '../..', 'bin', 'schxslt-cli.jar')
+        out = `java -jar #{jarpath} -v -d #{docpath} -s #{schematron_path}`
         return [] if out.match("[valid]")
         out.lines
       end

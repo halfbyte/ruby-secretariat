@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.1
+
+- [BUGFIX] Schema JAR must be properly relatively addressed when published as a gem
+- [BUGFIX] Make sure tmpdir lib is loaded when needed
+
 ## 3.0.0
 
 - [BREAKING] This now needs Java installed to run the Schematron validator, as nokogiri-schematron does not work with XSLT based schematron files

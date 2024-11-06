@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'date'
 
 module Secretariat
   class InvoiceTest < Minitest::Test
@@ -123,18 +124,18 @@ module Secretariat
       puts e.errors
     end
 
-    # def test_simple_eu_invoice_against_schematron
-    #   xml = make_eu_invoice.to_xml
-    #   v = Validator.new(xml)
-    #   errors = v.validate_against_schematron
-    #   if !errors.empty?
-    #     puts xml
-    #     errors.each do |error|
-    #       puts "#{error[:line]}: #{error[:message]}"
-    #     end
-    #   end
-    #   assert_equal [], errors
-    # end
+    def test_simple_eu_invoice_against_schematron
+      xml = make_eu_invoice.to_xml(version: 2)
+      v = Validator.new(xml, version: 2)
+      errors = v.validate_against_schematron
+      if !errors.empty?
+        puts xml
+        errors.each do |error|
+          puts "#{error}"
+        end
+      end
+      assert_equal [], errors
+    end
 
     def test_simple_de_invoice_v2
       xml = make_de_invoice.to_xml(version: 2)

@@ -15,25 +15,24 @@ limitations under the License.
 =end
 
 require 'nokogiri'
-require 'schematron-nokogiri'
-require 'open-uri'
 
 module Secretariat
   class Validator
     SCHEMATRON = [
       '../../schemas/zugferd_1/ZUGFeRD1p0.sch',
-      '../../schemas/zugferd_2/zf_en16931.sch'
+      '../../schemas/factur-x_1.0.0.7/Factur-X_1.0.07_EN16931.sch'
     ]
 
     SCHEMA = [
       '../../schemas/zugferd_1/ZUGFeRD1p0.xsd',
-      '../../schemas/zugferd_2/zf_en16931.xsd'
+      '../../schemas/factur-x_1.0.0.7/Factur-X_1.0.07_EN16931.xsd'
     ]
 
     SCHEMA_DIR = [
       '../../schemas/zugferd_1',
-      '../../schemas/zugferd_2'
+      '../../schemas/factur-x_1.0.0.7/'
     ]
+
     attr_accessor :doc, :version
     def initialize(io_or_str, version: 1)
       @doc = Nokogiri.XML(io_or_str)
@@ -44,10 +43,8 @@ module Secretariat
       Nokogiri::XML.Schema open(File.join(__dir__, SCHEMA[version - 1]))
     end
 
-    def schematron
-      SchematronNokogiri::Schema.new(
-        Nokogiri::XML(open(File.join(__dir__, SCHEMATRON[version - 1])))
-      )
+    def schematron_path
+      File.join(__dir__, SCHEMATRON[version - 1])
     end
 
     def validate_against_schema
@@ -55,11 +52,13 @@ module Secretariat
     end
 
     def validate_against_schematron
-      result = []
-      Dir.chdir File.join(__dir__, SCHEMA_DIR[version - 1]) do
-        result = schematron.validate(doc)
+      Dir.mktmpdir do |dir|
+        docpath = File.join(dir, 'doc.xml')
+        File.write(docpath, doc, mode: 'wb')
+        out = `java -jar bin/schxslt-cli.jar -v -d #{docpath} -s #{schematron_path}`
+        return [] if out.match("[valid]")
+        out.lines
       end
-      result
     end
   end
 end

@@ -15,5 +15,12 @@ module Secretariat
         xml.text(format(amount, round: 4, digits: digits))
       end
     end
+
+    def self.date_element(xml, date)
+      date = date.strftime("%Y%m%d") if date.respond_to?(:strftime)
+      xml['udt'].DateTimeString(format: '102') do
+        xml.text(date)
+      end
+    end
   end
 end

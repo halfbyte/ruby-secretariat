@@ -84,8 +84,8 @@ module Secretariat
       TAX_CATEGORY_CODES[tax_category] || 'S'
     end
 
-    def to_xml(xml, line_item_index, version: 2)
-      if !valid?
+    def to_xml(xml, line_item_index, version: 2, validate: true)
+      if validate && !valid?
         pp errors
         raise ValidationError.new("LineItem #{line_item_index} is invalid", errors)
       end

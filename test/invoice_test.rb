@@ -37,6 +37,8 @@ module Secretariat
       Invoice.new(
         id: '12345',
         issue_date: Date.today,
+        service_period_start: Date.today,
+        service_period_end: Date.today + 30,
         seller: seller,
         buyer: buyer,
         line_items: [line_item],
@@ -49,7 +51,8 @@ module Secretariat
         basis_amount: '29',
         grand_total_amount: 29,
         due_amount: 0,
-        paid_amount: 29
+        paid_amount: 29,
+        payment_due_date: Date.today + 14
       )
     end
 
@@ -88,19 +91,25 @@ module Secretariat
       Invoice.new(
         id: '12345',
         issue_date: Date.today,
+        service_period_start: Date.today,
+        service_period_end: Date.today + 30,
         seller: seller,
         buyer: buyer,
+        buyer_reference: "112233",
         line_items: [line_item],
         currency_code: 'USD',
         payment_type: :CREDITCARD,
         payment_text: 'Kreditkarte',
+        payment_iban: 'DE02120300000000202051',
+        payment_terms_text: "Zahlbar innerhalb von 14 Tagen ohne Abzug",
         tax_category: :STANDARDRATE,
         tax_percent: '19',
         tax_amount: '3.80',
         basis_amount: '20',
         grand_total_amount: '23.80',
         due_amount: 0,
-        paid_amount: '23.80'
+        paid_amount: '23.80',
+        payment_due_date: Date.today + 14
       )
     end
 

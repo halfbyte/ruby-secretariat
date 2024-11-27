@@ -20,12 +20,18 @@ module Secretariat
   Invoice = Struct.new("Invoice",
     :id,
     :issue_date,
+    :service_period_start,
+    :service_period_end,
     :seller,
     :buyer,
+    :buyer_reference,
     :line_items,
     :currency_code,
     :payment_type,
     :payment_text,
+    :payment_terms_text,
+    :payment_due_date,
+    :payment_iban,
     :tax_category,
     :tax_percent,
     :tax_amount,
@@ -141,6 +147,20 @@ module Secretariat
                 xml.text(issue_date.strftime("%Y%m%d"))
               end
             end
+            if service_period_start && service_period_end && version == 1
+              xml['ram'].EffectiveSpecifiedPeriod do
+                xml['ram'].StartDateTime do
+                  xml['udt'].DateTimeString(format: '102') do
+                    xml.text(service_period_start.strftime("%Y%m%d"))
+                  end
+                end
+                xml['ram'].EndDateTime do
+                  xml['udt'].DateTimeString(format: '102') do
+                    xml.text(service_period_end.strftime("%Y%m%d"))
+                  end
+                end
+              end
+            end
           end
           transaction = by_version(version, 'SpecifiedSupplyChainTradeTransaction', 'SupplyChainTradeTransaction')
           xml['rsm'].send(transaction) do
@@ -154,6 +174,9 @@ module Secretariat
             trade_agreement = by_version(version, 'ApplicableSupplyChainTradeAgreement', 'ApplicableHeaderTradeAgreement')
 
             xml['ram'].send(trade_agreement) do
+              if buyer_reference
+                xml['ram'].BuyerReference buyer_reference
+              end
               xml['ram'].SellerTradeParty do
                 seller.to_xml(xml, version: version)
               end
@@ -184,6 +207,11 @@ module Secretariat
               xml['ram'].SpecifiedTradeSettlementPaymentMeans do
                 xml['ram'].TypeCode payment_code
                 xml['ram'].Information payment_text
+                if payment_iban
+                  xml['ram'].PayeePartyCreditorFinancialAccount do
+                    xml['ram'].IBANID payment_iban
+                  end
+                end
               end
               xml['ram'].ApplicableTradeTax do
 
@@ -198,8 +226,23 @@ module Secretariat
                 percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
                 xml['ram'].send(percent, Helpers.format(tax_percent))
               end
+              if version == 2 && service_period_start && service_period_end
+                xml['ram'].BillingSpecifiedPeriod do
+                  xml['ram'].StartDateTime do
+                    Helpers.date_element(xml, service_period_start)
+                  end
+                  xml['ram'].EndDateTime do
+                    Helpers.date_element(xml, service_period_end)
+                  end
+                end
+              end
               xml['ram'].SpecifiedTradePaymentTerms do
-                xml['ram'].Description "Paid"
+                xml['ram'].Description payment_terms_text || "Paid"
+                if payment_due_date
+                  xml['ram'].DueDateDateTime do
+                    Helpers.date_element(xml, payment_due_date)
+                  end
+                end
               end
 
               monetary_summation = by_version(version, 'SpecifiedTradeSettlementMonetarySummation', 'SpecifiedTradeSettlementHeaderMonetarySummation')

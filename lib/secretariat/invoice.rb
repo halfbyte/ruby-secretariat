@@ -147,20 +147,7 @@ module Secretariat
                 xml.text(issue_date.strftime("%Y%m%d"))
               end
             end
-            if service_period_start && service_period_end && version == 1
-              xml['ram'].EffectiveSpecifiedPeriod do
-                xml['ram'].StartDateTime do
-                  xml['udt'].DateTimeString(format: '102') do
-                    xml.text(service_period_start.strftime("%Y%m%d"))
-                  end
-                end
-                xml['ram'].EndDateTime do
-                  xml['udt'].DateTimeString(format: '102') do
-                    xml.text(service_period_end.strftime("%Y%m%d"))
-                  end
-                end
-              end
-            end
+            
           end
           transaction = by_version(version, 'SpecifiedSupplyChainTradeTransaction', 'SupplyChainTradeTransaction')
           xml['rsm'].send(transaction) do

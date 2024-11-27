@@ -58,7 +58,7 @@ module Secretariat
         File.write(docpath, doc, mode: 'wb')
         jarpath = File.join(__dir__, '../..', 'bin', 'schxslt-cli.jar')
         out = `java -jar #{jarpath} -v -d #{docpath} -s #{schematron_path}`
-        return [] if out.match("[valid]")
+        return [] if out.start_with?("[valid]")
         out.lines
       end
     end

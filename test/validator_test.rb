@@ -26,6 +26,12 @@ module Secretariat
       v = Validator.new(xml, version: 1)
       assert_equal [], v.validate_against_schematron
     end
+
+    def test_invalid_schematron_validator_1
+      xml = open(File.join(__dir__, 'fixtures/zugferd_1/invalid.xml'))
+      v = Validator.new(xml, version: 1)
+      assert_equal 3, v.validate_against_schematron.size
+    end
   end
 end
 

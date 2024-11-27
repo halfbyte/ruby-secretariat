@@ -18,6 +18,10 @@ require 'nokogiri'
 require 'tmpdir'
 
 module Secretariat
+
+  class ValidatorError < StandardError; end
+
+
   class Validator
     SCHEMATRON = [
       '../../schemas/zugferd_1/ZUGFeRD1p0.sch',
@@ -59,8 +63,24 @@ module Secretariat
         jarpath = File.join(__dir__, '../..', 'bin', 'schxslt-cli.jar')
         out = `java -jar #{jarpath} -v -d #{docpath} -s #{schematron_path}`
         return [] if out.start_with?("[valid]")
-        out.lines
+        return process_schematron_errors(out)
       end
+    end
+
+    private
+
+    def process_schematron_errors(output)
+      errors = []
+      error_lines = output.lines.clone
+      error_lines.shift # get rid of file notice
+      
+      while(error_lines.length > 0) do
+        assert_error = error_lines.shift
+        _, ref = assert_error.split(" failed-assert ").map(&:strip)
+        error_description = error_lines.shift.strip
+        errors << ValidatorError.new("#{error_description} - Reference: #{ref}")
+      end
+      errors
     end
   end
 end

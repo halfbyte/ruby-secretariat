@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.1.0
+
+- [BUGFIX] Schematron Validator always reported valid. Fix by @SubandiK
+- [FEATURE] Allow skipping validations on `Invoice` and `LineItem` to allow for alternative calculation methods. PR by @zealot128
+- [FEATURE] Multiple fields added (`payment_due_date`, `service_period_to` + `...from`, `payment_iban`, `buyer_reference`, `payment_terms_text`) to Invoice. PR by @zealot128
+- [FEATURE] Return a list of exceptions from schematron validator to make it behave the same as schema validator.
+
 ## 3.0.1
 
 - [BUGFIX] Schema JAR must be properly relatively addressed when published as a gem

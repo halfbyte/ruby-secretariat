@@ -1,5 +1,17 @@
 require_relative 'lib/secretariat/version'
-require 'rake'
+
+# Rolling my own file_list to not have to rely on rake
+# as this breaks ruby-setup on GitHub actions
+# This should be good enough for now, even though
+# FileList does a lot more.
+def file_list(*patterns)
+  patterns.map do |pattern|
+    Dir.glob(pattern)
+  end.flatten.reject do |file|
+    File.basename(file).start_with?(".")
+  end
+end
+
 Gem::Specification.new do |s|
   s.name        = 'secretariat'
   s.version     = Secretariat::VERSION
@@ -8,7 +20,7 @@ Gem::Specification.new do |s|
   s.description = "a tool to help generate and validate ZUGFeRD invoice xml files"
   s.authors     = ["Jan Krutisch"]
   s.email       = 'jan@krutisch.de'
-  s.files       = FileList['lib/**/*.rb', 'bin/*.jar', 'schemas/**/*', 'README.md']
+  s.files       = file_list('lib/**/*.rb', 'bin/*.jar', 'schemas/**/*', 'README.md')
   s.homepage    = 'https://github.com/halfbyte/ruby-secretariat'
   s.license       = 'Apache-2.0'
 

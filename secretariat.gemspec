@@ -1,5 +1,5 @@
 require_relative 'lib/secretariat/version'
-require 'rake'
+#require 'rake'
 Gem::Specification.new do |s|
   s.name        = 'secretariat'
   s.version     = Secretariat::VERSION
@@ -8,7 +8,12 @@ Gem::Specification.new do |s|
   s.description = "a tool to help generate and validate ZUGFeRD invoice xml files"
   s.authors     = ["Jan Krutisch"]
   s.email       = 'jan@krutisch.de'
-  s.files       = FileList['lib/**/*.rb', 'bin/*.jar', 'schemas/**/*', 'README.md']
+  
+  # Specify which files should be added to the gem when it is released.
+  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
+  s.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
+    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  end
   s.homepage    = 'https://github.com/halfbyte/ruby-secretariat'
   s.license       = 'Apache-2.0'
 

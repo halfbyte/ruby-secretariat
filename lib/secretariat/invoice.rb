@@ -110,12 +110,12 @@ module Secretariat
       )
     end
 
-    def to_xml(version: 1)
+    def to_xml(version: 1, validate: true)
       if version < 1 || version > 2
         raise 'Unsupported Document Version'
       end
 
-      unless valid?
+      if validate && !valid?
         raise ValidationError.new("Invoice is invalid", errors)
       end
 
@@ -167,7 +167,7 @@ module Secretariat
 
             if version == 2
               line_items.each_with_index do |item, i|
-                item.to_xml(xml, i + 1, version: version) # one indexed
+                item.to_xml(xml, i + 1, version: version, validate: validate) # one indexed
               end
             end
 

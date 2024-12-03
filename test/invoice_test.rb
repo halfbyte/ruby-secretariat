@@ -132,11 +132,9 @@ module Secretariat
         name: 'Depfu Starter Plan',
         quantity: 1,
         unit: :PIECE,
-        gross_amount: '29',
+        gross_amount: '23.80',
         net_amount: '20',
         charge_amount: '20',
-        discount_amount: '9',
-        discount_reason: 'Rabatt',
         tax_category: :STANDARDRATE,
         tax_percent: '19',
         tax_amount: "3.80",
@@ -145,14 +143,14 @@ module Secretariat
       )
       line_item2 = LineItem.new(
         name: 'Cup of Coffee',
-        quantity: 1,
+        quantity: 2,
         unit: :PIECE,
-        gross_amount: '2',
+        gross_amount: '2.14',
         net_amount: '2',
-        charge_amount: '2',
+        charge_amount: '4',
         tax_category: :STANDARDRATE,
         tax_percent: '7',
-        tax_amount: "0.14",
+        tax_amount: "0.28",
         origin_country_code: 'DE',
         currency_code: 'EUR'
       )
@@ -171,11 +169,11 @@ module Secretariat
         payment_iban: 'DE02120300000000202051',
         payment_terms_text: "Zahlbar innerhalb von 14 Tagen ohne Abzug",
         tax_category: :STANDARDRATE,
-        tax_amount: '3.94',
-        basis_amount: '22',
-        grand_total_amount: '25.94',
+        tax_amount: '4.08',
+        basis_amount: '24',
+        grand_total_amount: '28.08',
         due_amount: 0,
-        paid_amount: '25.94',
+        paid_amount: '28.08',
         payment_due_date: Date.today + 14
       )
     end

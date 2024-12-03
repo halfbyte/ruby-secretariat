@@ -66,7 +66,7 @@ module Secretariat
       line_items.each do |line_item|
         taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent)) if taxes[line_item.tax_percent].nil?
         taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount)
-        taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount)
+        taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
       end
       taxes.values
     end
@@ -86,7 +86,7 @@ module Secretariat
       end
       summed_tax_base_amount = taxes.sum(&:base_amount)
       if basis != summed_tax_base_amount
-        @errors << "Base amount and summed base amounts deviate: #{basis} / #{summed_tax_base_amount}"
+        @errors << "Base amount and summed tax base amount deviate: #{basis} / #{summed_tax_base_amount}"
         return false
       end
       taxes.each do |tax|

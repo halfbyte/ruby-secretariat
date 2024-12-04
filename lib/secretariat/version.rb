@@ -1,5 +1,5 @@
 =begin
-Copyright Jan Krutisch
+Copyright Jan Krutisch and contributors (see CONTRIBUTORS.md)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,5 +15,5 @@ limitations under the License.
 =end
 
 module Secretariat
-  VERSION = '3.1.0'
+  VERSION = '3.2.0'
 end

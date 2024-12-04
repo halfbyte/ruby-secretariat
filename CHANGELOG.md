@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.2.0
+
+- [CHORE] Update schemas for latest Factur-X version (1.07.2) by @zealot128
+- [FEATURE] Allow for multiple tax rates in line items and correctly summarising them in invoice. PR by @SubandiK
+- [CHORE] Update copyright notices and add CONTRIBUTORS.md to reflect that this isn't a solo project anymore.
+
 ## 3.1.0
 
 - [BUGFIX] Schematron Validator always reported valid. Fix by @SubandiK

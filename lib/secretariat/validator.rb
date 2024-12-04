@@ -25,17 +25,17 @@ module Secretariat
   class Validator
     SCHEMATRON = [
       '../../schemas/zugferd_1/ZUGFeRD1p0.sch',
-      '../../schemas/factur-x_1.0.0.7/Factur-X_1.0.07_EN16931.sch'
+      '../../schemas/factur-x_1/Factur-X_1.07.2_EN16931.sch'
     ]
 
     SCHEMA = [
       '../../schemas/zugferd_1/ZUGFeRD1p0.xsd',
-      '../../schemas/factur-x_1.0.0.7/Factur-X_1.0.07_EN16931.xsd'
+      '../../schemas/factur-x_1/Factur-X_1.07.2_EN16931.xsd'
     ]
 
     SCHEMA_DIR = [
       '../../schemas/zugferd_1',
-      '../../schemas/factur-x_1.0.0.7/'
+      '../../schemas/factur-x_1/'
     ]
 
     attr_accessor :doc, :version

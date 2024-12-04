@@ -12,15 +12,23 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
 =end
 
-require_relative 'secretariat/version'
-require_relative 'secretariat/constants'
-require_relative 'secretariat/helpers'
-require_relative 'secretariat/versioner'
-require_relative 'secretariat/validation_error'
-require_relative 'secretariat/invoice'
-require_relative 'secretariat/trade_party'
-require_relative 'secretariat/line_item'
-require_relative 'secretariat/validator'
-require_relative 'secretariat/tax'
+require 'bigdecimal'
+
+module Secretariat
+  Tax = Struct.new('Tax',
+    :tax_percent,
+    :tax_amount,
+    :base_amount,
+    keyword_init: true
+  ) do
+
+    def initialize(*)
+      super
+      self.tax_amount = 0
+      self.base_amount = 0
+    end
+  end
+end

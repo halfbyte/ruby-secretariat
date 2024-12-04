@@ -61,6 +61,16 @@ module Secretariat
       TAX_CATEGORY_CODES[tax_category] || 'S'
     end
 
+    def taxes
+      taxes = {}
+      line_items.each do |line_item|
+        taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent)) if taxes[line_item.tax_percent].nil?
+        taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount)
+        taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
+      end
+      taxes.values
+    end
+
     def payment_code
       PAYMENT_CODES[payment_type] || '1'
     end
@@ -69,11 +79,23 @@ module Secretariat
       @errors = []
       tax = BigDecimal(tax_amount)
       basis = BigDecimal(basis_amount)
-      calc_tax = basis * BigDecimal(tax_percent) / BigDecimal(100)
-      calc_tax = calc_tax.round(2, :down)
-      if tax != calc_tax
-        @errors << "Tax amount and calculated tax amount deviate: #{tax} / #{calc_tax}"
+      summed_tax_amount = taxes.sum(&:tax_amount)
+      if tax != summed_tax_amount
+        @errors << "Tax amount and summed tax amounts deviate: #{tax_amount} / #{summed_tax_amount}"
         return false
+      end
+      summed_tax_base_amount = taxes.sum(&:base_amount)
+      if basis != summed_tax_base_amount
+        @errors << "Base amount and summed tax base amount deviate: #{basis} / #{summed_tax_base_amount}"
+        return false
+      end
+      taxes.each do |tax|
+        calc_tax = tax.base_amount * BigDecimal(tax.tax_percent) / BigDecimal(100)
+        calc_tax = calc_tax.round(2, :down)
+        if tax.tax_amount != calc_tax
+          @errors << "Tax amount and calculated tax amount deviate for rate #{tax.tax_percent}: #{tax.tax_amount} / #{calc_tax}"
+          return false
+        end
       end
       grand_total = BigDecimal(grand_total_amount)
       calc_grand_total = basis + tax
@@ -200,18 +222,19 @@ module Secretariat
                   end
                 end
               end
-              xml['ram'].ApplicableTradeTax do
+              taxes.each do |tax|
+                xml['ram'].ApplicableTradeTax do
+                  Helpers.currency_element(xml, 'ram', 'CalculatedAmount', tax.tax_amount, currency_code, add_currency: version == 1)
+                  xml['ram'].TypeCode 'VAT'
+                  if tax_reason_text && tax_reason_text != ''
+                    xml['ram'].ExemptionReason tax_reason_text
+                  end
+                  Helpers.currency_element(xml, 'ram', 'BasisAmount', tax.base_amount, currency_code, add_currency: version == 1)
+                  xml['ram'].CategoryCode tax_category_code(version: version)
 
-                Helpers.currency_element(xml, 'ram', 'CalculatedAmount', tax_amount, currency_code, add_currency: version == 1)
-                xml['ram'].TypeCode 'VAT'
-                if tax_reason_text && tax_reason_text != ''
-                  xml['ram'].ExemptionReason tax_reason_text
+                  percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
+                  xml['ram'].send(percent, Helpers.format(tax.tax_percent))
                 end
-                Helpers.currency_element(xml, 'ram', 'BasisAmount', basis_amount, currency_code, add_currency: version == 1)
-                xml['ram'].CategoryCode tax_category_code(version: version)
-
-                percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
-                xml['ram'].send(percent, Helpers.format(tax_percent))
               end
               if version == 2 && service_period_start && service_period_end
                 xml['ram'].BillingSpecifiedPeriod do

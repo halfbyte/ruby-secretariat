@@ -4,7 +4,7 @@ require_relative 'lib/secretariat/version'
 # as this breaks ruby-setup on GitHub actions
 # This should be good enough for now, even though
 # FileList does a lot more.
-def file_list(*patterns)
+def self.file_list(*patterns)
   patterns.map do |pattern|
     Dir.glob(pattern)
   end.flatten.reject do |file|

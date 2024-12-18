@@ -91,7 +91,7 @@ module Secretariat
       end
       taxes.each do |tax|
         calc_tax = tax.base_amount * BigDecimal(tax.tax_percent) / BigDecimal(100)
-        calc_tax = calc_tax.round(2, :down)
+        calc_tax = calc_tax.round(2)
         if tax.tax_amount != calc_tax
           @errors << "Tax amount and calculated tax amount deviate for rate #{tax.tax_percent}: #{tax.tax_amount} / #{calc_tax}"
           return false

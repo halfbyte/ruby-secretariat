@@ -154,6 +154,19 @@ module Secretariat
         origin_country_code: 'DE',
         currency_code: 'EUR'
       )
+      line_item3 = LineItem.new(
+        name: 'Returnable Deposit',
+        quantity: 1,
+        unit: :PIECE,
+        gross_amount: '5',
+        net_amount: '5',
+        charge_amount: '5',
+        tax_category: :ZEROTAXPRODUCTS,
+        tax_percent: '0',
+        tax_amount: "0",
+        origin_country_code: 'DE',
+        currency_code: 'EUR'
+      )
       Invoice.new(
         id: '12345',
         issue_date: Date.today,
@@ -162,7 +175,7 @@ module Secretariat
         seller: seller,
         buyer: buyer,
         buyer_reference: "112233",
-        line_items: [line_item, line_item2],
+        line_items: [line_item, line_item2, line_item3],
         currency_code: 'USD',
         payment_type: :CREDITCARD,
         payment_text: 'Kreditkarte',
@@ -170,10 +183,10 @@ module Secretariat
         payment_terms_text: "Zahlbar innerhalb von 14 Tagen ohne Abzug",
         tax_category: :STANDARDRATE,
         tax_amount: '7.78',
-        basis_amount: '42.50',
-        grand_total_amount: '50.28',
+        basis_amount: '47.50',
+        grand_total_amount: '55.28',
         due_amount: 0,
-        paid_amount: '50.28',
+        paid_amount: '55.28',
         payment_due_date: Date.today + 14
       )
     end
@@ -296,9 +309,21 @@ module Secretariat
       assert_equal [], errors
     end
 
-    def test_de_multiple_taxes_invoice_against_schematron
+    def test_de_multiple_taxes_invoice_against_schematron_1
       xml = make_de_invoice_with_multiple_tax_rates.to_xml(version: 1)
       v = Validator.new(xml, version: 1)
+      errors = v.validate_against_schematron
+      if !errors.empty?
+        puts xml
+        errors.each do |error|
+          puts "#{error[:line]}: #{error[:message]}"
+        end
+      end
+      assert_equal [], errors
+    end
+    def test_de_multiple_taxes_invoice_against_schematron_2
+      xml = make_de_invoice_with_multiple_tax_rates.to_xml(version: 2)
+      v = Validator.new(xml, version: 2)
       errors = v.validate_against_schematron
       if !errors.empty?
         puts xml

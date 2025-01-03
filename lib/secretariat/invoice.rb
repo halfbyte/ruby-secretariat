@@ -54,17 +54,17 @@ module Secretariat
       tax_reason || TAX_EXEMPTION_REASONS[tax_category]
     end
 
-    def tax_category_code(version: 2)
+    def tax_category_code(tax, version: 2)
       if version == 1
-        return TAX_CATEGORY_CODES_1[tax_category] || 'S'
+        return TAX_CATEGORY_CODES_1[tax.tax_category || tax_category] || 'S'
       end
-      TAX_CATEGORY_CODES[tax_category] || 'S'
+      TAX_CATEGORY_CODES[tax.tax_category || tax_category] || 'S'
     end
 
     def taxes
       taxes = {}
       line_items.each do |line_item|
-        taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent)) if taxes[line_item.tax_percent].nil?
+        taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent), tax_category: line_item.tax_category) if taxes[line_item.tax_percent].nil?
         taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount)
         taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
       end
@@ -230,7 +230,7 @@ module Secretariat
                     xml['ram'].ExemptionReason tax_reason_text
                   end
                   Helpers.currency_element(xml, 'ram', 'BasisAmount', tax.base_amount, currency_code, add_currency: version == 1)
-                  xml['ram'].CategoryCode tax_category_code(version: version)
+                  xml['ram'].CategoryCode tax_category_code(tax, version: version)
 
                   percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
                   xml['ram'].send(percent, Helpers.format(tax.tax_percent))

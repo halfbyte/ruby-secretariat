@@ -20,6 +20,7 @@ module Secretariat
   Tax = Struct.new('Tax',
     :tax_percent,
     :tax_amount,
+    :tax_category,
     :base_amount,
     keyword_init: true
   ) do

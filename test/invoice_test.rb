@@ -130,27 +130,40 @@ module Secretariat
       )
       line_item = LineItem.new(
         name: 'Depfu Starter Plan',
-        quantity: 1,
+        quantity: 2,
         unit: :PIECE,
         gross_amount: '23.80',
         net_amount: '20',
-        charge_amount: '20',
+        charge_amount: '40',
         tax_category: :STANDARDRATE,
         tax_percent: '19',
-        tax_amount: "3.80",
+        tax_amount: "7.60",
         origin_country_code: 'DE',
         currency_code: 'EUR'
       )
       line_item2 = LineItem.new(
         name: 'Cup of Coffee',
-        quantity: 2,
+        quantity: 1,
         unit: :PIECE,
-        gross_amount: '2.14',
-        net_amount: '2',
-        charge_amount: '4',
+        gross_amount: '2.68',
+        net_amount: '2.50',
+        charge_amount: '2.50',
         tax_category: :STANDARDRATE,
         tax_percent: '7',
-        tax_amount: "0.28",
+        tax_amount: "0.18",
+        origin_country_code: 'DE',
+        currency_code: 'EUR'
+      )
+      line_item3 = LineItem.new(
+        name: 'Returnable Deposit',
+        quantity: 1,
+        unit: :PIECE,
+        gross_amount: '5',
+        net_amount: '5',
+        charge_amount: '5',
+        tax_category: :ZEROTAXPRODUCTS,
+        tax_percent: '0',
+        tax_amount: "0",
         origin_country_code: 'DE',
         currency_code: 'EUR'
       )
@@ -162,18 +175,18 @@ module Secretariat
         seller: seller,
         buyer: buyer,
         buyer_reference: "112233",
-        line_items: [line_item, line_item2],
+        line_items: [line_item, line_item2, line_item3],
         currency_code: 'USD',
         payment_type: :CREDITCARD,
         payment_text: 'Kreditkarte',
         payment_iban: 'DE02120300000000202051',
         payment_terms_text: "Zahlbar innerhalb von 14 Tagen ohne Abzug",
         tax_category: :STANDARDRATE,
-        tax_amount: '4.08',
-        basis_amount: '24',
-        grand_total_amount: '28.08',
+        tax_amount: '7.78',
+        basis_amount: '47.50',
+        grand_total_amount: '55.28',
         due_amount: 0,
-        paid_amount: '28.08',
+        paid_amount: '55.28',
         payment_due_date: Date.today + 14
       )
     end
@@ -296,9 +309,21 @@ module Secretariat
       assert_equal [], errors
     end
 
-    def test_de_multiple_taxes_invoice_against_schematron
+    def test_de_multiple_taxes_invoice_against_schematron_1
       xml = make_de_invoice_with_multiple_tax_rates.to_xml(version: 1)
       v = Validator.new(xml, version: 1)
+      errors = v.validate_against_schematron
+      if !errors.empty?
+        puts xml
+        errors.each do |error|
+          puts "#{error[:line]}: #{error[:message]}"
+        end
+      end
+      assert_equal [], errors
+    end
+    def test_de_multiple_taxes_invoice_against_schematron_2
+      xml = make_de_invoice_with_multiple_tax_rates.to_xml(version: 2)
+      v = Validator.new(xml, version: 2)
       errors = v.validate_against_schematron
       if !errors.empty?
         puts xml

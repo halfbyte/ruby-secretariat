@@ -99,6 +99,7 @@ module Secretariat
         currency_code: 'USD',
         payment_type: :CREDITCARD,
         payment_text: 'Kreditkarte',
+        payment_reference: 'INV 123123123',
         payment_iban: 'DE02120300000000202051',
         payment_terms_text: "Zahlbar innerhalb von 14 Tagen ohne Abzug",
         tax_category: :STANDARDRATE,

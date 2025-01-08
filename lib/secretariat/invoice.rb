@@ -28,6 +28,7 @@ module Secretariat
     :line_items,
     :currency_code,
     :payment_type,
+    :payment_reference,
     :payment_text,
     :payment_terms_text,
     :payment_due_date,
@@ -212,6 +213,9 @@ module Secretariat
             end
             trade_settlement = by_version(version, 'ApplicableSupplyChainTradeSettlement', 'ApplicableHeaderTradeSettlement')
             xml['ram'].send(trade_settlement) do
+              if payment_reference && payment_reference != ''
+                xml['ram'].PaymentReference payment_reference
+              end
               xml['ram'].InvoiceCurrencyCode currency_code
               xml['ram'].SpecifiedTradeSettlementPaymentMeans do
                 xml['ram'].TypeCode payment_code

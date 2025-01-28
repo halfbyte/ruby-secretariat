@@ -105,7 +105,7 @@ module Secretariat
         return false
       end
       line_item_sum = line_items.inject(BigDecimal(0)) do |m, item|
-        m + BigDecimal(item.charge_amount)
+        m + BigDecimal(item.quantity.positive? ? item.charge_amount : -item.charge_amount)
       end
       if line_item_sum != basis
         @errors << "Line items do not add up to basis amount #{line_item_sum} / #{basis}"

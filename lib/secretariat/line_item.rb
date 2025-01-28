@@ -49,7 +49,7 @@ module Secretariat
       gross_price = BigDecimal(gross_amount)
       charge_price = BigDecimal(charge_amount)
       tax = BigDecimal(tax_amount)
-      unit_price = net_price * BigDecimal(quantity).abs
+      unit_price = net_price * BigDecimal(quantity.abs)
 
       if charge_price != unit_price
         @errors << "charge price and gross price times quantity deviate: #{charge_price} / #{unit_price}"
@@ -66,6 +66,7 @@ module Secretariat
 
       calculated_tax = charge_price * BigDecimal(tax_percent) / BigDecimal(100)
       calculated_tax = calculated_tax.round(2)
+      calculated_tax = -calculated_tax if quantity.negative?
       if calculated_tax != tax
         @errors << "Tax and calculated tax deviate: #{tax} / #{calculated_tax}"
         return false
@@ -85,6 +86,14 @@ module Secretariat
     end
 
     def to_xml(xml, line_item_index, version: 2, validate: true)
+      if net_amount&.negative?
+        # Zugferd doesn't allow negative amounts at the item level.
+        # Instead, a negative quantity is used.
+        self.quantity = -quantity
+        self.gross_amount = gross_amount&.abs
+        self.net_amount = net_amount&.abs
+        self.charge_amount = charge_amount&.abs
+      end
       if validate && !valid?
         pp errors
         raise ValidationError.new("LineItem #{line_item_index} is invalid", errors)

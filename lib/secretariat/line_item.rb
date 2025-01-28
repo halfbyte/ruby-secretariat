@@ -49,7 +49,7 @@ module Secretariat
       gross_price = BigDecimal(gross_amount)
       charge_price = BigDecimal(charge_amount)
       tax = BigDecimal(tax_amount)
-      unit_price = net_price * BigDecimal(quantity)
+      unit_price = net_price * BigDecimal(quantity).abs
 
       if charge_price != unit_price
         @errors << "charge price and gross price times quantity deviate: #{charge_price} / #{unit_price}"
@@ -160,7 +160,7 @@ module Secretariat
           end
           monetary_summation = by_version(version, 'SpecifiedTradeSettlementMonetarySummation', 'SpecifiedTradeSettlementLineMonetarySummation')
           xml['ram'].send(monetary_summation) do
-            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', charge_amount, currency_code, add_currency: version == 1)
+            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', (quantity.negative? ? -charge_amount  : charge_amount), currency_code, add_currency: version == 1)
           end
         end
 

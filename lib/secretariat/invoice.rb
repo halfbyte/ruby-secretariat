@@ -41,6 +41,7 @@ module Secretariat
     :grand_total_amount,
     :due_amount,
     :paid_amount,
+    :attachments,
 
     keyword_init: true
   ) do
@@ -192,6 +193,13 @@ module Secretariat
               end
               xml['ram'].BuyerTradeParty do
                 buyer.to_xml(xml, version: version)
+              end
+              if version == 2
+                if Array(attachments).size > 0
+                  attachments.each_with_index do |attachment, index|
+                    attachment.to_xml(xml, index, version: version)
+                  end
+                end
               end
             end
 

@@ -86,6 +86,9 @@ module Secretariat
     end
 
     def to_xml(xml, line_item_index, version: 2, validate: true)
+      if net_amount&.zero?
+        self.tax_percent = 0
+      end
       if net_amount&.negative?
         # Zugferd doesn't allow negative amounts at the item level.
         # Instead, a negative quantity is used.

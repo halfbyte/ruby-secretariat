@@ -197,7 +197,7 @@ module Secretariat
               if version == 2
                 if Array(attachments).size > 0
                   attachments.each_with_index do |attachment, index|
-                    attachment.to_xml(xml, index, version: version)
+                    attachment.to_xml(xml, index, version: version, validate: validate)
                   end
                 end
               end

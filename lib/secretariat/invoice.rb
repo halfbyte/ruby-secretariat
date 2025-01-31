@@ -283,7 +283,7 @@ module Secretariat
             end
             if version == 1
               line_items.each_with_index do |item, i|
-                item.to_xml(xml, i + 1, version: version) # one indexed
+                item.to_xml(xml, i + 1, version: version, validate: validate) # one indexed
               end
             end
           end

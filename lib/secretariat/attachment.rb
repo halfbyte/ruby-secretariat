@@ -17,7 +17,6 @@ limitations under the License.
 
 
 require 'mime/types'
-require 'pry'
 
 ALLOWED_MIME_TYPES = [
   "application/pdf",

@@ -28,14 +28,13 @@ ALLOWED_MIME_TYPES = [
 ]
 
 module Secretariat
-
-
   Attachment = Struct.new('Attachment',
     :filename,
     :type_code,
-    :base64
-  ) do
+    :base64,
 
+    keyword_init: true
+  ) do
     include Versioner
 
     def errors

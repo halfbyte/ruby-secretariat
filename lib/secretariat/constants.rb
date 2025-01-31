@@ -15,6 +15,7 @@ limitations under the License.
 =end
 
 module Secretariat
+  BASIS_QUANTITY = 1.0
 
   TAX_CATEGORY_CODES = {
    :STANDARDRATE => "S",
@@ -45,6 +46,8 @@ module Secretariat
    :DEBITADVICE => "31",
    :CREDITCARD => "48",
    :DEBIT => "49",
+   :SEPA_CREDIT => "58",
+   :SEPA_DEBIT => "59",
    :COMPENSATION => "97",
   }
 
@@ -55,12 +58,14 @@ module Secretariat
   }
 
   UNIT_CODES = {
-    :PIECE => "C62",
+    :ONE => "C62",  
+    :PIECE => "H87",
     :DAY => "DAY",
     :HECTARE => "HAR",
     :HOUR => "HUR",
+    :MONTH => "MON",
     :KILOGRAM => "KGM",
-    :KILOMETER => "KTM",
+    :KILOMETER => "KMT",
     :KILOWATTHOUR => "KWH",
     :FIXEDRATE => "LS",
     :LITRE => "LTR",
@@ -75,6 +80,9 @@ module Secretariat
     :PERCENT => "P1",
     :SET => "SET",
     :TON => "TNE",
-    :WEEK => "WEE"
+    :WEEK => "WEE",
+    :BOTTLE => "BO",
+    :CARTON => "CT",
+    :CAN => "CA",
   }
 end

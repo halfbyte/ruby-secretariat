@@ -134,9 +134,15 @@ module Secretariat
       )
     end
 
-    def to_xml(version: 1, validate: true)
-      if version < 1 || version > 2
+    def to_xml(version: 1, validate: true, mode: :zugferd)
+      if version < 1 || version > 3
         raise 'Unsupported Document Version'
+      end
+      if mode != :zugferd && mode != :xrechnung
+        raise 'Unsupported Document Mode'
+      end
+      if mode == :xrechnung && version < 2
+        raise 'Mode XRechnung requires Document Version > 1'
       end
 
       if validate && !valid?
@@ -152,8 +158,17 @@ module Secretariat
           context = by_version(version, 'SpecifiedExchangedDocumentContext', 'ExchangedDocumentContext')
 
           xml['rsm'].send(context) do
+            if version == 3 && mode == :xrechnung
+              xml['ram'].BusinessProcessSpecifiedDocumentContextParameter do
+                xml['ram'].ID 'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0'
+              end
+            end
             xml['ram'].GuidelineSpecifiedDocumentContextParameter do
               version_id = by_version(version, 'urn:ferd:CrossIndustryDocument:invoice:1p0:comfort', 'urn:cen.eu:en16931:2017')
+              if mode == :xrechnung
+                version_id += '#compliant#urn:xoev-de:kosit:standard:xrechnung_2.3' if version == 2
+                version_id += '#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0' if version == 3
+              end
               xml['ram'].ID version_id
             end
           end
@@ -176,7 +191,7 @@ module Secretariat
           transaction = by_version(version, 'SpecifiedSupplyChainTradeTransaction', 'SupplyChainTradeTransaction')
           xml['rsm'].send(transaction) do
 
-            if version == 2
+            if version >= 2
               line_items.each_with_index do |item, i|
                 item.to_xml(xml, i + 1, version: version, validate: validate) # one indexed
               end
@@ -194,7 +209,7 @@ module Secretariat
               xml['ram'].BuyerTradeParty do
                 buyer.to_xml(xml, version: version)
               end
-              if version == 2
+              if version >= 2
                 if Array(attachments).size > 0
                   attachments.each_with_index do |attachment, index|
                     attachment.to_xml(xml, index, version: version, validate: validate)
@@ -206,7 +221,7 @@ module Secretariat
             delivery = by_version(version, 'ApplicableSupplyChainTradeDelivery', 'ApplicableHeaderTradeDelivery')
 
             xml['ram'].send(delivery) do
-              if version == 2
+              if version >= 2
                 xml['ram'].ShipToTradeParty do
                   buyer.to_xml(xml, exclude_tax: true, version: version)
                 end
@@ -283,7 +298,7 @@ module Secretariat
             end
             if version == 1
               line_items.each_with_index do |item, i|
-                item.to_xml(xml, i + 1, version: version) # one indexed
+                item.to_xml(xml, i + 1, version: version, validate: validate) # one indexed
               end
             end
           end

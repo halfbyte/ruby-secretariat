@@ -52,7 +52,8 @@ module Secretariat
         grand_total_amount: 29,
         due_amount: 0,
         paid_amount: 29,
-        payment_due_date: Date.today + 14
+        payment_due_date: Date.today + 14,
+        payment_terms_text: 'paid'
       )
     end
 
@@ -166,7 +167,8 @@ module Secretariat
         grand_total_amount: '23.80',
         due_amount: 0,
         paid_amount: '23.80',
-        payment_due_date: Date.today + 14
+        payment_due_date: Date.today + 14,
+        payment_terms_text: 'paid'
       )
     end
 

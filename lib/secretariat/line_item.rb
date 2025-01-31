@@ -50,6 +50,7 @@ module Secretariat
       charge_price = BigDecimal(charge_amount)
       tax = BigDecimal(tax_amount)
       unit_price = net_price * BigDecimal(quantity)
+      unit_price = unit_price.round(2)
 
       if charge_price != unit_price
         @errors << "charge price and gross price times quantity deviate: #{charge_price} / #{unit_price}"
@@ -57,7 +58,7 @@ module Secretariat
       end
       if discount_amount
         discount = BigDecimal(discount_amount)
-        calculated_net_price = (gross_price - discount).round(2, :down)
+        calculated_net_price = (gross_price - discount).round(2)
         if calculated_net_price != net_price
           @errors = "Calculated net price and net price deviate: #{calculated_net_price} / #{net_price}"
           return false
@@ -94,7 +95,7 @@ module Secretariat
         xml['ram'].AssociatedDocumentLineDocument do
           xml['ram'].LineID line_item_index
         end
-        if (version == 2)
+        if (version >= 2)
           xml['ram'].SpecifiedTradeProduct do
             xml['ram'].Name name
             xml['ram'].OriginTradeCountry do
@@ -107,9 +108,9 @@ module Secretariat
         xml['ram'].send(agreement) do
           xml['ram'].GrossPriceProductTradePrice do
             Helpers.currency_element(xml, 'ram', 'ChargeAmount', gross_amount, currency_code, add_currency: version == 1, digits: 4)
-            if version == 2 && discount_amount
+            if version >= 2 && discount_amount
               xml['ram'].BasisQuantity(unitCode: unit_code) do
-                xml.text(Helpers.format(quantity, digits: 4))
+                xml.text(Helpers.format(BASIS_QUANTITY, digits: 4))
               end
               xml['ram'].AppliedTradeAllowanceCharge do
                 xml['ram'].ChargeIndicator do
@@ -131,9 +132,9 @@ module Secretariat
           end
           xml['ram'].NetPriceProductTradePrice do
             Helpers.currency_element(xml, 'ram', 'ChargeAmount', net_amount, currency_code, add_currency: version == 1, digits: 4)
-            if version == 2
+            if version >= 2
               xml['ram'].BasisQuantity(unitCode: unit_code) do
-                xml.text(Helpers.format(quantity, digits: 4))
+                xml.text(Helpers.format(BASIS_QUANTITY, digits: 4))
               end
             end
           end

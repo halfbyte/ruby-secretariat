@@ -15,6 +15,15 @@ limitations under the License.
 =end
 
 module Secretariat
+  ALLOWED_MIME_TYPES = [
+    "application/pdf",
+    "application/vnd.oasis.opendocument.spreadsheet",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "image/jpeg",
+    "image/png",
+    "text/csv"
+  ]
+    
   BASIS_QUANTITY = 1.0
 
   TAX_CATEGORY_CODES = {

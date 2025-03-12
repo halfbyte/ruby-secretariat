@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.3.0
+
+- [FEATURE] Allow for vertical tax calculation. PR by @RST-J
+- [FEATURE] Allow for negative line items. PR by @SubandiK
+- [FEATURE] Allow for attachments. PR by @mnin
+- [FEATURE] Add a few tax exemption reasons that were missing
+
 ## 3.2.0
 
 - [CHORE] Update schemas for latest Factur-X version (1.07.2) by @zealot128

@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'date'
+require 'base64'
 
 module Secretariat
   class InvoiceTest < Minitest::Test
@@ -52,6 +53,63 @@ module Secretariat
         due_amount: 0,
         paid_amount: 29,
         payment_due_date: Date.today + 14
+      )
+    end
+
+    def make_eu_invoice_with_attachment
+      seller = TradeParty.new(
+        name: 'Depfu inc',
+        street1: 'Quickbornstr. 46',
+        city: 'Hamburg',
+        postal_code: '20253',
+        country_id: 'DE',
+        vat_id: 'DE304755032'
+      )
+      buyer = TradeParty.new(
+        name: 'Depfu inc',
+        street1: 'Quickbornstr. 46',
+        city: 'Hamburg',
+        postal_code: '20253',
+        country_id: 'SE',
+        vat_id: 'SE304755032'
+      )
+      line_item = LineItem.new(
+        name: 'Depfu Starter Plan',
+        quantity: 1,
+        gross_amount: '29',
+        net_amount: '29',
+        unit: :PIECE,
+        charge_amount: '29',
+        tax_category: :REVERSECHARGE,
+        tax_percent: 0,
+        tax_amount: "0",
+        origin_country_code: 'DE',
+        currency_code: 'EUR'
+      )
+      attachment = Attachment.new(
+        filename: 'example.pdf',
+        type_code: 916,
+        base64: Base64.encode64(open(File.join(__dir__, 'fixtures/example.pdf')).read)
+      )
+      Invoice.new(
+        id: '12345',
+        issue_date: Date.today,
+        service_period_start: Date.today,
+        service_period_end: Date.today + 30,
+        seller: seller,
+        buyer: buyer,
+        line_items: [line_item],
+        currency_code: 'USD',
+        payment_type: :CREDITCARD,
+        payment_text: 'Kreditkarte',
+        tax_category: :REVERSECHARGE,
+        tax_amount: '0',
+        basis_amount: '29',
+        grand_total_amount: 29,
+        due_amount: 0,
+        paid_amount: 29,
+        payment_due_date: Date.today + 14,
+        attachments: [attachment]
       )
     end
 
@@ -214,6 +272,19 @@ module Secretariat
 
     def test_simple_eu_invoice_against_schematron
       xml = make_eu_invoice.to_xml(version: 2)
+      v = Validator.new(xml, version: 2)
+      errors = v.validate_against_schematron
+      if !errors.empty?
+        puts xml
+        errors.each do |error|
+          puts "#{error}"
+        end
+      end
+      assert_equal [], errors
+    end
+
+    def test_simple_eu_invoice_with_attachment_against_schematron
+      xml = make_eu_invoice_with_attachment.to_xml(version: 2)
       v = Validator.new(xml, version: 2)
       errors = v.validate_against_schematron
       if !errors.empty?

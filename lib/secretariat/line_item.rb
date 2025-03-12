@@ -86,19 +86,24 @@ module Secretariat
     end
 
     def to_xml(xml, line_item_index, version: 2, validate: true)
-      if net_amount&.zero?
+      net_price = net_amount && BigDecimal(net_amount)
+      gross_price = gross_amount && BigDecimal(gross_amount)
+      charge_price = charge_amount && BigDecimal(charge_amount)
+
+      if net_price&.zero?
         self.tax_percent = 0
       end
-      if net_amount&.negative?
+      
+      if net_price&.negative?
         # Zugferd doesn't allow negative amounts at the item level.
         # Instead, a negative quantity is used.
         self.quantity = -quantity
-        self.gross_amount = gross_amount&.abs
-        self.net_amount = net_amount&.abs
-        self.charge_amount = charge_amount&.abs
+        self.gross_amount = gross_price&.abs
+        self.net_amount = net_price&.abs
+        self.charge_amount = charge_price&.abs
       end
+
       if validate && !valid?
-        pp errors
         raise ValidationError.new("LineItem #{line_item_index} is invalid", errors)
       end
 

@@ -53,13 +53,15 @@ module Secretariat
    :DEBITADVICE => "31",
    :CREDITCARD => "48",
    :DEBIT => "49",
-   :COMPENSATION => "97",
+   :COMPENSATION => "97"
   }
 
   TAX_EXEMPTION_REASONS = {
     :REVERSECHARGE => 'Reverse Charge',
     :INTRACOMMUNITY => 'Intra-community transaction',
-    :EXPORT => 'Export outside the EU'
+    :EXPORT => 'Export outside the EU',
+    :TAXEXEMPT => 'VAT exempt',
+    :UNTAXEDSERVICE => 'Not subject to VAT'
   }
 
   # For the background of vertical and horizontal tax calculation see https://hilfe.pacemo.de/de-form/articles/3489851-rundungsfehler-bei-rechnungen

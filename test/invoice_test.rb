@@ -63,7 +63,6 @@ module Secretariat
         city: 'Hamburg',
         postal_code: '20253',
         country_id: 'DE',
-        vat_id: 'DE304755032'
       )
       buyer = TradeParty.new(
         name: 'Another Corp Inc.',
@@ -362,6 +361,10 @@ module Secretariat
         pp e.errors
       end
 
+      assert_match(/<ram:CategoryCode>AE<\/ram:CategoryCode>/, xml)
+      assert_match(/<ram:ExemptionReason>Reverse Charge<\/ram:ExemptionReason>/, xml)
+      assert_match(/<ram:RateApplicablePercent>/, xml)
+
       v = Validator.new(xml, version: 2)
       errors = v.validate_against_schema
       if !errors.empty?
@@ -375,7 +378,7 @@ module Secretariat
       puts e.errors
     end
 
-    def test_simple_foreign_invoice_v2
+    def test_simple_foreign_invoice_v2_taxexpempt
       begin
         xml = make_foreign_invoice(tax_category: :TAXEXEMPT).to_xml(version: 2)
       rescue ValidationError => e
@@ -384,6 +387,30 @@ module Secretariat
 
       assert_match(/<ram:CategoryCode>E<\/ram:CategoryCode>/, xml)
       assert_match(/<ram:ExemptionReason>VAT exempt<\/ram:ExemptionReason>/, xml)
+      assert_match(/<ram:RateApplicablePercent>/, xml)
+
+      v = Validator.new(xml, version: 2)
+      errors = v.validate_against_schema
+      if !errors.empty?
+        puts xml
+        errors.each do |error|
+          puts error
+        end
+      end
+      assert_equal [], errors
+    rescue ValidationError => e
+      puts e.errors
+    end
+    
+    def test_simple_foreign_invoice_v2_untaxed
+      begin
+        xml = make_foreign_invoice(tax_category: :UNTAXEDSERVICE).to_xml(version: 2)
+      rescue ValidationError => e
+        pp e.errors
+      end
+
+      assert_match(/<ram:CategoryCode>O<\/ram:CategoryCode>/, xml)
+      assert_match(/<ram:ExemptionReason>Not subject to VAT<\/ram:ExemptionReason>/, xml)
 
       v = Validator.new(xml, version: 2)
       errors = v.validate_against_schema

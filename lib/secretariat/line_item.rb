@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 =end
 
-
-
 require 'bigdecimal'
 module Secretariat
 
@@ -63,13 +61,15 @@ module Secretariat
           return false
         end
       end
-
-      calculated_tax = charge_price * BigDecimal(tax_percent) / BigDecimal(100)
-      calculated_tax = calculated_tax.round(2)
-      calculated_tax = -calculated_tax if quantity.negative?
-      if calculated_tax != tax
-        @errors << "Tax and calculated tax deviate: #{tax} / #{calculated_tax}"
-        return false
+      if tax_category != :UNTAXEDSERVICE
+        self.tax_percent ||= BigDecimal(0)
+        calculated_tax = charge_price * BigDecimal(tax_percent) / BigDecimal(100)
+        calculated_tax = calculated_tax.round(2)
+        calculated_tax = -calculated_tax if quantity.negative?
+        if calculated_tax != tax
+          @errors << "Tax and calculated tax deviate: #{tax} / #{calculated_tax}"
+          return false
+        end
       end
       return true
     end
@@ -85,10 +85,16 @@ module Secretariat
       TAX_CATEGORY_CODES[tax_category] || 'S'
     end
 
+    def untaxable?
+      tax_category == :UNTAXEDSERVICE
+    end
+
     def to_xml(xml, line_item_index, version: 2, validate: true)
       net_price = net_amount && BigDecimal(net_amount)
       gross_price = gross_amount && BigDecimal(gross_amount)
       charge_price = charge_amount && BigDecimal(charge_amount)
+
+      self.tax_percent ||= BigDecimal(0)
 
       if net_price&.zero?
         self.tax_percent = 0
@@ -170,10 +176,10 @@ module Secretariat
           xml['ram'].ApplicableTradeTax do
             xml['ram'].TypeCode 'VAT'
             xml['ram'].CategoryCode tax_category_code(version: version)
-
-            percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
-            xml['ram'].send(percent,Helpers.format(tax_percent))
-
+            unless untaxable?
+              percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
+              xml['ram'].send(percent,Helpers.format(tax_percent))            
+            end
           end
           monetary_summation = by_version(version, 'SpecifiedTradeSettlementMonetarySummation', 'SpecifiedTradeSettlementLineMonetarySummation')
           xml['ram'].send(monetary_summation) do

@@ -65,11 +65,26 @@ module Secretariat
 
     def taxes
       taxes = {}
-      line_items.each do |line_item|
-        taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent), tax_category: line_item.tax_category) if taxes[line_item.tax_percent].nil?
-        taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount)
-        taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
+      # Shortcut for cases where invoices only have one tax and the calculation is off by a cent because of rounding errors
+      # (This can happen if the VAT and the net amount is calculated backwards from a round gross amount)
+      if tax_calculation_method == :NONE
+        tax = Tax.new(tax_percent: BigDecimal(tax_percent || BigDecimal(0)), tax_category: tax_category)
+        tax.base_amount = BigDecimal(basis_amount)
+        tax.tax_amount = BigDecimal(tax_amount || 0)
+        return [tax]
       end
+
+      line_items.each do |line_item|
+        if line_item.tax_percent.nil?
+          taxes['0'] = Tax.new(tax_percent: BigDecimal(0), tax_category: line_item.tax_category, tax_amount: BigDecimal(0)) if taxes['0'].nil?
+          taxes['0'].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
+        else
+          taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent), tax_category: line_item.tax_category) if taxes[line_item.tax_percent].nil?
+          taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount)
+          taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
+        end
+      end
+      
       if tax_calculation_method == :VERTICAL
         taxes.values.map do |tax|
           tax.tax_amount = (tax.base_amount * tax.tax_percent / 100).round(2)
@@ -98,12 +113,14 @@ module Secretariat
         @errors << "Base amount and summed tax base amount deviate: #{basis} / #{summed_tax_base_amount}"
         return false
       end
-      taxes.each do |tax|
-        calc_tax = tax.base_amount * BigDecimal(tax.tax_percent) / BigDecimal(100)
-        calc_tax = calc_tax.round(2)
-        if tax.tax_amount != calc_tax
-          @errors << "Tax amount and calculated tax amount deviate for rate #{tax.tax_percent}: #{tax.tax_amount} / #{calc_tax}"
-          return false
+      if tax_calculation_method != :NONE
+        taxes.each do |tax|
+          calc_tax = tax.base_amount * BigDecimal(tax.tax_percent) / BigDecimal(100)
+          calc_tax = calc_tax.round(2)
+          if tax.tax_amount != calc_tax
+            @errors << "Tax amount and calculated tax amount deviate for rate #{tax.tax_percent}: #{tax.tax_amount} / #{calc_tax}"
+            return false
+          end
         end
       end
       grand_total = BigDecimal(grand_total_amount)
@@ -250,9 +267,10 @@ module Secretariat
                   end
                   Helpers.currency_element(xml, 'ram', 'BasisAmount', tax.base_amount, currency_code, add_currency: version == 1)
                   xml['ram'].CategoryCode tax_category_code(tax, version: version)
-
-                  percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
-                  xml['ram'].send(percent, Helpers.format(tax.tax_percent))
+                  # unless tax.untaxable?
+                    percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
+                    xml['ram'].send(percent, Helpers.format(tax.tax_percent))
+                  # end
                 end
               end
               if version == 2 && service_period_start && service_period_end

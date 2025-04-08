@@ -113,7 +113,12 @@ module Secretariat
         @errors << "Base amount and summed tax base amount deviate: #{basis} / #{summed_tax_base_amount}"
         return false
       end
-      if tax_calculation_method != :NONE
+      if tax_calculation_method == :ITEM_BASED
+        line_items_tax_amount = line_items.sum(&:tax_amount)
+        if tax_amount != line_items_tax_amount
+          @errors << "Tax amount #{tax_amount} and summed up item tax amounts #{line_items_tax_amount} deviate"
+        end
+      elsif tax_calculation_method != :NONE
         taxes.each do |tax|
           calc_tax = tax.base_amount * BigDecimal(tax.tax_percent) / BigDecimal(100)
           calc_tax = calc_tax.round(2)

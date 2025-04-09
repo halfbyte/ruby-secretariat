@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 =end
 
-
-
 require 'bigdecimal'
 module Secretariat
 
@@ -49,7 +47,7 @@ module Secretariat
       gross_price = BigDecimal(gross_amount)
       charge_price = BigDecimal(charge_amount)
       tax = BigDecimal(tax_amount)
-      unit_price = net_price * BigDecimal(quantity)
+      unit_price = net_price * BigDecimal(quantity.abs)
       unit_price = unit_price.round(2)
 
       if charge_price != unit_price
@@ -64,12 +62,15 @@ module Secretariat
           return false
         end
       end
-
-      calculated_tax = charge_price * BigDecimal(tax_percent) / BigDecimal(100)
-      calculated_tax = calculated_tax.round(2)
-      if calculated_tax != tax
-        @errors << "Tax and calculated tax deviate: #{tax} / #{calculated_tax}"
-        return false
+      if tax_category != :UNTAXEDSERVICE
+        self.tax_percent ||= BigDecimal(0)
+        calculated_tax = charge_price * BigDecimal(tax_percent) / BigDecimal(100)
+        calculated_tax = calculated_tax.round(2)
+        calculated_tax = -calculated_tax if quantity.negative?
+        if calculated_tax != tax
+          @errors << "Tax and calculated tax deviate: #{tax} / #{calculated_tax}"
+          return false
+        end
       end
       return true
     end
@@ -85,9 +86,31 @@ module Secretariat
       TAX_CATEGORY_CODES[tax_category] || 'S'
     end
 
+    def untaxable?
+      tax_category == :UNTAXEDSERVICE
+    end
+
     def to_xml(xml, line_item_index, version: 2, validate: true)
+      net_price = net_amount && BigDecimal(net_amount)
+      gross_price = gross_amount && BigDecimal(gross_amount)
+      charge_price = charge_amount && BigDecimal(charge_amount)
+
+      self.tax_percent ||= BigDecimal(0)
+
+      if net_price&.zero?
+        self.tax_percent = 0
+      end
+      
+      if net_price&.negative?
+        # Zugferd doesn't allow negative amounts at the item level.
+        # Instead, a negative quantity is used.
+        self.quantity = -quantity
+        self.gross_amount = gross_price&.abs
+        self.net_amount = net_price&.abs
+        self.charge_amount = charge_price&.abs
+      end
+
       if validate && !valid?
-        pp errors
         raise ValidationError.new("LineItem #{line_item_index} is invalid", errors)
       end
 
@@ -154,14 +177,14 @@ module Secretariat
           xml['ram'].ApplicableTradeTax do
             xml['ram'].TypeCode 'VAT'
             xml['ram'].CategoryCode tax_category_code(version: version)
-
-            percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
-            xml['ram'].send(percent,Helpers.format(tax_percent))
-
+            unless untaxable?
+              percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
+              xml['ram'].send(percent,Helpers.format(tax_percent))            
+            end
           end
           monetary_summation = by_version(version, 'SpecifiedTradeSettlementMonetarySummation', 'SpecifiedTradeSettlementLineMonetarySummation')
           xml['ram'].send(monetary_summation) do
-            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', charge_amount, currency_code, add_currency: version == 1)
+            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', (quantity.negative? ? -charge_amount  : charge_amount), currency_code, add_currency: version == 1)
           end
         end
 

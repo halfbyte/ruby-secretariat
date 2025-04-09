@@ -30,5 +30,10 @@ module Secretariat
       self.tax_amount = 0
       self.base_amount = 0
     end
+
+    def untaxable?
+      tax_category == :UNTAXEDSERVICE
+    end
+
   end
 end

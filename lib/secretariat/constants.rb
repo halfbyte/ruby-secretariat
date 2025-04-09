@@ -57,14 +57,20 @@ module Secretariat
    :DEBIT => "49",
    :SEPA_CREDIT => "58",
    :SEPA_DEBIT => "59",
-   :COMPENSATION => "97",
+   :COMPENSATION => "97"
   }
 
   TAX_EXEMPTION_REASONS = {
     :REVERSECHARGE => 'Reverse Charge',
     :INTRACOMMUNITY => 'Intra-community transaction',
-    :EXPORT => 'Export outside the EU'
+    :EXPORT => 'Export outside the EU',
+    :TAXEXEMPT => 'VAT exempt',
+    :UNTAXEDSERVICE => 'Not subject to VAT'
   }
+
+  # For the background of vertical and horizontal tax calculation see https://hilfe.pacemo.de/de-form/articles/3489851-rundungsfehler-bei-rechnungen
+  # The idea of introducing an unknown value is that this could be inferred from the given invoice total and line items by probing both variants and selecting the matching one - or reporting a taxation error if neither matches.
+  TAX_CALCULATION_METHODS = %i[HORIZONTAL VERTICAL NONE UNKNOWN].freeze
 
   UNIT_CODES = {
     :ONE => "C62",  

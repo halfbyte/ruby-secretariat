@@ -16,10 +16,15 @@ limitations under the License.
 
 module Secretariat
   TradeParty = Struct.new('TradeParty',
-    :name, :street1, :street2, :city, :postal_code, :country_id, :vat_id, :contact_name, :contact_phone, :contact_email,
+    :name, :street1, :street2, :city, :postal_code, :country_id, :vat_id, :contact_name, :contact_phone, :contact_email, :global_id, :global_id_scheme_id, :tax_id,
     keyword_init: true,
   ) do
     def to_xml(xml, exclude_tax: false, version: 2)
+      if global_id && global_id != '' && global_id_scheme_id && global_id_scheme_id != ''
+        xml['ram'].GlobalID(schemeID: global_id_scheme_id) do
+          xml.text(global_id)
+        end
+      end
       xml['ram'].Name name
       if contact_name && contact_name != ''
         xml['ram'].DefinedTradeContact do
@@ -56,6 +61,12 @@ module Secretariat
         xml['ram'].SpecifiedTaxRegistration do
           xml['ram'].ID(schemeID: 'VA') do
             xml.text(vat_id)
+          end
+        end
+      elsif tax_id && tax_id != ''
+        xml['ram'].SpecifiedTaxRegistration do
+          xml['ram'].ID(schemeID: 'FC') do
+            xml.text(tax_id)
           end
         end
       end

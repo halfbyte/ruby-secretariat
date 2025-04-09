@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.4.0
+
+- [FEATURE] Allow for "untaxable" invoices. This is, for example the case when you deliver services to US states that don't tax these, or if you're falling below the registration threshold.
+- [FEATURE] To support valid "untaxable" invoices, `:tax_id`, `:global_id` and `:global_id_scheme_id` are introduced on `TradeParty` as attributes. ZUGFeRD does not allow VAT ids on invoices that are untaxable, so you need a global id (and other validators want you to add the local tax id as well, but that's mandatory, I think). This could be a SWIFT id, for example, which would be an IBAN for EU folks. (IANAL!) 
+- [FEATURE] Introduce tax_calculation_method = :NONE, which skips collecting taxes from line items and just uses the global values. It also skips some of the validations. This is a hack-ish solution to a problem I ran into where the invoicing service calculated the VAT and net amounts backwards from a round gross amount, resulting in rounding errors when trying to calculate them the correct way round. This is easier to use when you only have one tax rate and all the values are already known.
+
+## 3.3.0
+
+- [FEATURE] Allow for vertical tax calculation. PR by @RST-J
+- [FEATURE] Allow for negative line items. PR by @SubandiK
+- [FEATURE] Allow for attachments. PR by @mnin
+- [FEATURE] Add a few tax exemption reasons that were missing
+
 ## 3.2.0
 
 - [CHORE] Update schemas for latest Factur-X version (1.07.2) by @zealot128

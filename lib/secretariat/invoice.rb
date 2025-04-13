@@ -167,7 +167,7 @@ module Secretariat
         raise ValidationError.new("Invoice is invalid", errors)
       end
 
-      builder = Nokogiri::XML::Builder.new do |xml|
+      builder = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
 
         root = by_version(version, 'CrossIndustryDocument', 'CrossIndustryInvoice')
 

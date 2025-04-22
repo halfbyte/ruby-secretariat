@@ -22,6 +22,7 @@ module Secretariat
     :issue_date,
     :service_period_start,
     :service_period_end,
+    :invoice_type,
     :seller,
     :buyer,
     :buyer_reference,
@@ -204,7 +205,7 @@ module Secretariat
             if version == 1
               xml['ram'].Name "RECHNUNG"
             end
-            xml['ram'].TypeCode '380' # TODO: make configurable
+            xml['ram'].TypeCode invoice_type
             xml['ram'].IssueDateTime do
               xml['udt'].DateTimeString(format: '102') do
                 xml.text(issue_date.strftime("%Y%m%d"))

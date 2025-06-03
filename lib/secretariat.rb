@@ -26,3 +26,5 @@ require_relative 'secretariat/line_item'
 require_relative 'secretariat/validator'
 require_relative 'secretariat/tax'
 require_relative 'secretariat/attachment'
+
+require_relative "secretariat/serializers/basic"

@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.5.0
+
+- [FEATURE] Yet another tax calculation/validation mode :ITEM_BASED. PR by @SubandiK
+- [CHORE] Update ruby version files to 3.4.2
+
 ## 3.4.0
 
 - [FEATURE] Allow for "untaxable" invoices. This is, for example the case when you deliver services to US states that don't tax these, or if you're falling below the registration threshold.

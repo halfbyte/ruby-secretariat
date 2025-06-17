@@ -267,7 +267,7 @@ module Secretariat
               xml['ram'].InvoiceCurrencyCode currency_code
               xml['ram'].SpecifiedTradeSettlementPaymentMeans do
                 xml['ram'].TypeCode payment_code
-                xml['ram'].Information payment_text
+                xml['ram'].Information payment_text if payment_text.present?
                 if payment_iban.present?
                   xml['ram'].PayeePartyCreditorFinancialAccount do
                     xml['ram'].IBANID payment_iban

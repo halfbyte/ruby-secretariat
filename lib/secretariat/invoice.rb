@@ -225,7 +225,7 @@ module Secretariat
             trade_agreement = by_version(version, 'ApplicableSupplyChainTradeAgreement', 'ApplicableHeaderTradeAgreement')
 
             xml['ram'].send(trade_agreement) do
-              if buyer_reference
+              if buyer_reference.present?
                 xml['ram'].BuyerReference buyer_reference
               end
               xml['ram'].SellerTradeParty do

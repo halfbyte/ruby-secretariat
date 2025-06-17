@@ -225,7 +225,7 @@ module Secretariat
             trade_agreement = by_version(version, 'ApplicableSupplyChainTradeAgreement', 'ApplicableHeaderTradeAgreement')
 
             xml['ram'].send(trade_agreement) do
-              if buyer_reference.present?
+              if buyer_reference && buyer_reference != ''
                 xml['ram'].BuyerReference buyer_reference
               end
               xml['ram'].SellerTradeParty do
@@ -267,8 +267,8 @@ module Secretariat
               xml['ram'].InvoiceCurrencyCode currency_code
               xml['ram'].SpecifiedTradeSettlementPaymentMeans do
                 xml['ram'].TypeCode payment_code
-                xml['ram'].Information payment_text if payment_text.present?
-                if payment_iban.present?
+                xml['ram'].Information payment_text if payment_text && payment_text != ''
+                if payment_iban && payment_iban != ''
                   xml['ram'].PayeePartyCreditorFinancialAccount do
                     xml['ram'].IBANID payment_iban
                   end

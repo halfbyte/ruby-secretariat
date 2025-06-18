@@ -205,7 +205,7 @@ module Secretariat
             if version == 1
               xml['ram'].Name "RECHNUNG"
             end
-            xml['ram'].TypeCode invoice_type
+            xml['ram'].TypeCode invoice_type || '380'
             xml['ram'].IssueDateTime do
               xml['udt'].DateTimeString(format: '102') do
                 xml.text(issue_date.strftime("%Y%m%d"))

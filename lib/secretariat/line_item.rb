@@ -188,7 +188,7 @@ module Secretariat
           end
           monetary_summation = by_version(version, 'SpecifiedTradeSettlementMonetarySummation', 'SpecifiedTradeSettlementLineMonetarySummation')
           xml['ram'].send(monetary_summation) do
-            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', charge_amount, currency_code, add_currency: version == 1)
+            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', (quantity.negative? ? -charge_amount : charge_amount), currency_code, add_currency: version == 1)
           end
         end
 

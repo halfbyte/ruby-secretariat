@@ -23,6 +23,8 @@ module Secretariat
     :service_period_start,
     :service_period_end,
     :invoice_type,
+    :invoice_reference_id,
+    :invoice_reference_date,
     :seller,
     :buyer,
     :buyer_reference,
@@ -320,6 +322,18 @@ module Secretariat
                 Helpers.currency_element(xml, 'ram', 'GrandTotalAmount', grand_total_amount, currency_code, add_currency: version == 1)
                 Helpers.currency_element(xml, 'ram', 'TotalPrepaidAmount', paid_amount, currency_code, add_currency: version == 1)
                 Helpers.currency_element(xml, 'ram', 'DuePayableAmount', due_amount, currency_code, add_currency: version == 1)
+              end
+
+              if invoice_reference_id && invoice_reference_date
+                invoice_reference = by_version(version, 'InvoiceReferencedDocument', 'InvoiceReferencedDocument')
+                xml['ram'].send(invoice_reference) do
+                  xml['ram'].IssuerAssignedID invoice_reference_id
+                  xml['ram'].FormattedIssueDateTime do
+                    xml['qdt'].DateTimeString(format: '102') do
+                      xml.text(invoice_reference_date.strftime('%Y%m%d'))
+                    end
+                  end
+                end
               end
             end
             if version == 1

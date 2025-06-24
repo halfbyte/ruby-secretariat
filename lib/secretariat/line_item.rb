@@ -136,7 +136,7 @@ module Secretariat
                 xml['ram'].BasisQuantity(unitCode: unit_code) do
                   xml.text(Helpers.format(BASIS_QUANTITY, digits: 4))
                 end
-                if discount
+                if discount_amount
                   xml['ram'].AppliedTradeAllowanceCharge do
                     xml['ram'].ChargeIndicator do
                       xml['udt'].Indicator 'false'

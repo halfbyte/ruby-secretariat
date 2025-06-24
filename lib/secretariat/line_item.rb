@@ -23,7 +23,6 @@ module Secretariat
     :quantity,
     :unit,
     :gross_amount,
-    :gross_based,
     :net_amount,
     :tax_category,
     :tax_percent,
@@ -130,19 +129,21 @@ module Secretariat
         agreement = by_version(version, 'SpecifiedSupplyChainTradeAgreement', 'SpecifiedLineTradeAgreement')
 
         xml['ram'].send(agreement) do
-          if gross_based
+          if gross_amount
             xml['ram'].GrossPriceProductTradePrice do
               Helpers.currency_element(xml, 'ram', 'ChargeAmount', gross_amount, currency_code, add_currency: version == 1, digits: 4)
-              if version >= 2 && discount_amount
+              if version >= 2
                 xml['ram'].BasisQuantity(unitCode: unit_code) do
                   xml.text(Helpers.format(BASIS_QUANTITY, digits: 4))
                 end
-                xml['ram'].AppliedTradeAllowanceCharge do
-                  xml['ram'].ChargeIndicator do
-                    xml['udt'].Indicator 'false'
+                if discount
+                  xml['ram'].AppliedTradeAllowanceCharge do
+                    xml['ram'].ChargeIndicator do
+                      xml['udt'].Indicator 'false'
+                    end
+                    Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
+                    xml['ram'].Reason discount_reason
                   end
-                  Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
-                  xml['ram'].Reason discount_reason
                 end
               end
               if version == 1 && discount_amount
@@ -155,12 +156,31 @@ module Secretariat
                 end
               end
             end
-          else
+          end
+          if net_amount
             xml['ram'].NetPriceProductTradePrice do
               Helpers.currency_element(xml, 'ram', 'ChargeAmount', net_amount, currency_code, add_currency: version == 1, digits: 4)
               if version >= 2
                 xml['ram'].BasisQuantity(unitCode: unit_code) do
                   xml.text(Helpers.format(BASIS_QUANTITY, digits: 4))
+                end
+                if discount_amount
+                  xml['ram'].AppliedTradeAllowanceCharge do
+                    xml['ram'].ChargeIndicator do
+                      xml['udt'].Indicator 'false'
+                    end
+                    Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
+                    xml['ram'].Reason discount_reason
+                  end
+                end
+                if version == 1 && discount_amount
+                  xml['ram'].AppliedTradeAllowanceCharge do
+                    xml['ram'].ChargeIndicator do
+                      xml['udt'].Indicator 'false'
+                    end
+                    Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
+                    xml['ram'].Reason discount_reason
+                  end
                 end
               end
             end

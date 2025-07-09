@@ -22,6 +22,7 @@ module Secretariat
     :issue_date,
     :service_period_start,
     :service_period_end,
+    :delivery_date,
     :invoice_type,
     :invoice_reference_id,
     :invoice_reference_date,
@@ -256,7 +257,7 @@ module Secretariat
               xml['ram'].ActualDeliverySupplyChainEvent do
                 xml['ram'].OccurrenceDateTime do
                   xml['udt'].DateTimeString(format: '102') do
-                    xml.text(service_period_end.strftime("%Y%m%d"))
+                    xml.text(delivery_date.strftime("%Y%m%d"))
                   end
                 end
               end

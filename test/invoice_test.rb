@@ -340,7 +340,7 @@ module Secretariat
         issue_date: Date.today,
         service_period_start: Date.today,
         service_period_end: Date.today + 30,
-        delivery_date: Date.today + 30,
+        delivery_date: nil,
         seller: seller,
         buyer: buyer,
         buyer_reference: "112233",

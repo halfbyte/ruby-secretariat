@@ -101,7 +101,7 @@ module Secretariat
         self.tax_percent = 0
       end
 
-      if net_price&.negative?
+      if net_price&.negative? || gross_price&.negative?
         # Zugferd doesn't allow negative amounts at the item level.
         # Instead, a negative quantity is used.
         self.quantity = -quantity

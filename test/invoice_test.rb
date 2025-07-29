@@ -52,7 +52,8 @@ module Secretariat
         grand_total_amount: BigDecimal('29'),
         due_amount: 0,
         paid_amount: 29,
-        payment_due_date: Date.today + 14
+        payment_due_date: Date.today + 14,
+        notes: "This is a test invoice",
       )
     end
 
@@ -401,7 +402,7 @@ module Secretariat
     rescue ValidationError => e
       puts e.errors
     end
-    
+
     def test_simple_foreign_invoice_v2_untaxed
       begin
         xml = make_foreign_invoice(tax_category: :UNTAXEDSERVICE).to_xml(version: 2)
@@ -561,7 +562,7 @@ module Secretariat
       end
       assert_equal [], errors
     end
-    
+
     def test_negative_de_invoice_against_schematron_1
       xml = make_negative_de_invoice.to_xml(version: 1)
       v = Validator.new(xml, version: 1)

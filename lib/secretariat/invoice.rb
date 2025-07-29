@@ -42,6 +42,7 @@ module Secretariat
     :due_amount,
     :paid_amount,
     :tax_calculation_method,
+    :notes,
     :attachments,
     keyword_init: true
   ) do
@@ -84,7 +85,7 @@ module Secretariat
           taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
         end
       end
-      
+
       if tax_calculation_method == :VERTICAL
         taxes.values.map do |tax|
           tax.tax_amount = (tax.base_amount * tax.tax_percent / 100).round(2)
@@ -200,8 +201,13 @@ module Secretariat
                 xml.text(issue_date.strftime("%Y%m%d"))
               end
             end
-
+            Array(self.notes).each do |note|
+              xml['ram'].IncludedNote do
+                xml['ram'].Content note
+              end
+            end
           end
+
           transaction = by_version(version, 'SpecifiedSupplyChainTradeTransaction', 'SupplyChainTradeTransaction')
           xml['rsm'].send(transaction) do
 

@@ -28,7 +28,8 @@ module Secretariat
       def test_basic_profile
         ser = Basic.new(make_basic_invoice)
         xml  = ser.serialize
-        puts xml
+
+
 
       end
     end

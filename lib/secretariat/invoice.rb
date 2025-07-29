@@ -43,6 +43,7 @@ module Secretariat
     :paid_amount,
     :tax_calculation_method,
     :attachments,
+    :notes,
     keyword_init: true
   ) do
 
@@ -84,7 +85,7 @@ module Secretariat
           taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
         end
       end
-      
+
       if tax_calculation_method == :VERTICAL
         taxes.values.map do |tax|
           tax.tax_amount = (tax.base_amount * tax.tax_percent / 100).round(2)

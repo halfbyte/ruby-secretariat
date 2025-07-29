@@ -48,6 +48,7 @@ module Secretariat
     :tax_calculation_method,
     :notes,
     :attachments,
+    :notes,
     keyword_init: true
   ) do
 

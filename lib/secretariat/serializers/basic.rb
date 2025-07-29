@@ -39,14 +39,17 @@ module Secretariat
                   xml.text(invoice.issue_date.strftime("%Y%m%d"))
                 end
               end
+              Array(@invoice.notes).each do |note|
+                xml['ram'].IncludedNote do
+                  xml['ram'].Content note
+                end
+              end
             end
             xml['rsm'].SupplyChainTradeTransaction do
-
             end
           end
         end.to_xml
       end
-
     end
   end
 end

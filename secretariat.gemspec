@@ -33,5 +33,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'minitest', '~> 5.13'
   s.add_development_dependency 'rake', '~> 13.0'
   s.add_development_dependency 'base64', '~> 0.2.0'
+  s.add_development_dependency 'nokogiri-diff', '~> 0.3.0'
   s.requirements << "To run the validator, Java must be installed"
 end

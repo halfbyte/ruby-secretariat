@@ -289,7 +289,7 @@ module Secretariat
                 xml['ram'].ApplicableTradeTax do
                   Helpers.currency_element(xml, 'ram', 'CalculatedAmount', tax.tax_amount, currency_code, add_currency: version == 1)
                   xml['ram'].TypeCode 'VAT'
-                  unless tax_reason_text.blank?
+                  if tax_reason_text.present?
                     xml['ram'].ExemptionReason tax_reason_text
                   end
                   Helpers.currency_element(xml, 'ram', 'BasisAmount', tax.base_amount, currency_code, add_currency: version == 1)

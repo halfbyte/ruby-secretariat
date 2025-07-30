@@ -15,6 +15,8 @@ limitations under the License.
 =end
 
 require_relative 'secretariat/version'
+require_relative 'secretariat/object_extensions'
+# using Secretariat::ObjectExtensions
 require_relative 'secretariat/constants'
 require_relative 'secretariat/helpers'
 require_relative 'secretariat/versioner'

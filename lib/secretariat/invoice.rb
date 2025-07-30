@@ -18,7 +18,7 @@ require 'bigdecimal'
 
 module Secretariat
   using ObjectExtensions
-  
+
   Invoice = Struct.new("Invoice",
     :id,
     :issue_date,
@@ -270,16 +270,16 @@ module Secretariat
             end
             trade_settlement = by_version(version, 'ApplicableSupplyChainTradeSettlement', 'ApplicableHeaderTradeSettlement')
             xml['ram'].send(trade_settlement) do
-              unless payment_reference.blank?
+              if payment_reference.present?
                 xml['ram'].PaymentReference payment_reference
               end
               xml['ram'].InvoiceCurrencyCode currency_code
               xml['ram'].SpecifiedTradeSettlementPaymentMeans do
                 xml['ram'].TypeCode payment_code
-                unless payment_text.blank?
+                if payment_text.present?
                   xml['ram'].Information payment_text
                 end
-                unless payment_iban.blank?
+                if payment_iban.present?
                   xml['ram'].PayeePartyCreditorFinancialAccount do
                     xml['ram'].IBANID payment_iban
                   end

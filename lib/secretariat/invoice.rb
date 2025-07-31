@@ -17,11 +17,17 @@ limitations under the License.
 require 'bigdecimal'
 
 module Secretariat
+  using ObjectExtensions
+
   Invoice = Struct.new("Invoice",
     :id,
     :issue_date,
     :service_period_start,
     :service_period_end,
+    :delivery_date,
+    :invoice_type,
+    :invoice_reference_id,
+    :invoice_reference_date,
     :seller,
     :buyer,
     :buyer_reference,
@@ -204,7 +210,7 @@ module Secretariat
             if version == 1
               xml['ram'].Name "RECHNUNG"
             end
-            xml['ram'].TypeCode '380' # TODO: make configurable
+            xml['ram'].TypeCode invoice_type || '380'
             xml['ram'].IssueDateTime do
               xml['udt'].DateTimeString(format: '102') do
                 xml.text(issue_date.strftime("%Y%m%d"))
@@ -253,21 +259,27 @@ module Secretariat
               xml['ram'].ActualDeliverySupplyChainEvent do
                 xml['ram'].OccurrenceDateTime do
                   xml['udt'].DateTimeString(format: '102') do
-                    xml.text(issue_date.strftime("%Y%m%d"))
+                    if delivery_date.nil? || issue_date == delivery_date
+                      xml.text(issue_date.strftime("%Y%m%d"))
+                    else
+                      xml.text(delivery_date.strftime("%Y%m%d"))
+                    end
                   end
                 end
               end
             end
             trade_settlement = by_version(version, 'ApplicableSupplyChainTradeSettlement', 'ApplicableHeaderTradeSettlement')
             xml['ram'].send(trade_settlement) do
-              if payment_reference && payment_reference != ''
+              if payment_reference.present?
                 xml['ram'].PaymentReference payment_reference
               end
               xml['ram'].InvoiceCurrencyCode currency_code
               xml['ram'].SpecifiedTradeSettlementPaymentMeans do
                 xml['ram'].TypeCode payment_code
-                xml['ram'].Information payment_text
-                if payment_iban
+                if payment_text.present?
+                  xml['ram'].Information payment_text
+                end
+                if payment_iban.present?
                   xml['ram'].PayeePartyCreditorFinancialAccount do
                     xml['ram'].IBANID payment_iban
                   end
@@ -277,7 +289,7 @@ module Secretariat
                 xml['ram'].ApplicableTradeTax do
                   Helpers.currency_element(xml, 'ram', 'CalculatedAmount', tax.tax_amount, currency_code, add_currency: version == 1)
                   xml['ram'].TypeCode 'VAT'
-                  if tax_reason_text && tax_reason_text != ''
+                  if tax_reason_text.present?
                     xml['ram'].ExemptionReason tax_reason_text
                   end
                   Helpers.currency_element(xml, 'ram', 'BasisAmount', tax.base_amount, currency_code, add_currency: version == 1)
@@ -319,6 +331,18 @@ module Secretariat
                 Helpers.currency_element(xml, 'ram', 'GrandTotalAmount', grand_total_amount, currency_code, add_currency: version == 1)
                 Helpers.currency_element(xml, 'ram', 'TotalPrepaidAmount', paid_amount, currency_code, add_currency: version == 1)
                 Helpers.currency_element(xml, 'ram', 'DuePayableAmount', due_amount, currency_code, add_currency: version == 1)
+              end
+
+              if invoice_reference_id && invoice_reference_date
+                invoice_reference = by_version(version, 'InvoiceReferencedDocument', 'InvoiceReferencedDocument')
+                xml['ram'].send(invoice_reference) do
+                  xml['ram'].IssuerAssignedID invoice_reference_id
+                  xml['ram'].FormattedIssueDateTime do
+                    xml['qdt'].DateTimeString(format: '102') do
+                      xml.text(invoice_reference_date.strftime('%Y%m%d'))
+                    end
+                  end
+                end
               end
             end
             if version == 1

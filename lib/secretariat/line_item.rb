@@ -100,8 +100,8 @@ module Secretariat
       if net_price&.zero?
         self.tax_percent = 0
       end
-      
-      if net_price&.negative?
+
+      if net_price&.negative? || gross_price&.negative?
         # Zugferd doesn't allow negative amounts at the item level.
         # Instead, a negative quantity is used.
         self.quantity = -quantity
@@ -129,35 +129,59 @@ module Secretariat
         agreement = by_version(version, 'SpecifiedSupplyChainTradeAgreement', 'SpecifiedLineTradeAgreement')
 
         xml['ram'].send(agreement) do
-          xml['ram'].GrossPriceProductTradePrice do
-            Helpers.currency_element(xml, 'ram', 'ChargeAmount', gross_amount, currency_code, add_currency: version == 1, digits: 4)
-            if version >= 2 && discount_amount
-              xml['ram'].BasisQuantity(unitCode: unit_code) do
-                xml.text(Helpers.format(BASIS_QUANTITY, digits: 4))
-              end
-              xml['ram'].AppliedTradeAllowanceCharge do
-                xml['ram'].ChargeIndicator do
-                  xml['udt'].Indicator 'false'
+          if gross_amount
+            xml['ram'].GrossPriceProductTradePrice do
+              Helpers.currency_element(xml, 'ram', 'ChargeAmount', gross_amount, currency_code, add_currency: version == 1, digits: 4)
+              if version >= 2
+                xml['ram'].BasisQuantity(unitCode: unit_code) do
+                  xml.text(Helpers.format(BASIS_QUANTITY, digits: 4))
                 end
-                Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
-                xml['ram'].Reason discount_reason
-              end
-            end
-            if version == 1 && discount_amount
-              xml['ram'].AppliedTradeAllowanceCharge do
-                xml['ram'].ChargeIndicator do
-                  xml['udt'].Indicator 'false'
+                if discount_amount
+                  xml['ram'].AppliedTradeAllowanceCharge do
+                    xml['ram'].ChargeIndicator do
+                      xml['udt'].Indicator 'false'
+                    end
+                    Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
+                    xml['ram'].Reason discount_reason
+                  end
                 end
-                Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
-                xml['ram'].Reason discount_reason
+              end
+              if version == 1 && discount_amount
+                xml['ram'].AppliedTradeAllowanceCharge do
+                  xml['ram'].ChargeIndicator do
+                    xml['udt'].Indicator 'false'
+                  end
+                  Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
+                  xml['ram'].Reason discount_reason
+                end
               end
             end
           end
-          xml['ram'].NetPriceProductTradePrice do
-            Helpers.currency_element(xml, 'ram', 'ChargeAmount', net_amount, currency_code, add_currency: version == 1, digits: 4)
-            if version >= 2
-              xml['ram'].BasisQuantity(unitCode: unit_code) do
-                xml.text(Helpers.format(BASIS_QUANTITY, digits: 4))
+          if net_amount
+            xml['ram'].NetPriceProductTradePrice do
+              Helpers.currency_element(xml, 'ram', 'ChargeAmount', net_amount, currency_code, add_currency: version == 1, digits: 4)
+              if version >= 2
+                xml['ram'].BasisQuantity(unitCode: unit_code) do
+                  xml.text(Helpers.format(BASIS_QUANTITY, digits: 4))
+                end
+                if discount_amount
+                  xml['ram'].AppliedTradeAllowanceCharge do
+                    xml['ram'].ChargeIndicator do
+                      xml['udt'].Indicator 'false'
+                    end
+                    Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
+                    xml['ram'].Reason discount_reason
+                  end
+                end
+                if version == 1 && discount_amount
+                  xml['ram'].AppliedTradeAllowanceCharge do
+                    xml['ram'].ChargeIndicator do
+                      xml['udt'].Indicator 'false'
+                    end
+                    Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
+                    xml['ram'].Reason discount_reason
+                  end
+                end
               end
             end
           end
@@ -184,7 +208,7 @@ module Secretariat
           end
           monetary_summation = by_version(version, 'SpecifiedTradeSettlementMonetarySummation', 'SpecifiedTradeSettlementLineMonetarySummation')
           xml['ram'].send(monetary_summation) do
-            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', (quantity.negative? ? -charge_amount  : charge_amount), currency_code, add_currency: version == 1)
+            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', (quantity.negative? ? -charge_amount : charge_amount), currency_code, add_currency: version == 1)
           end
         end
 

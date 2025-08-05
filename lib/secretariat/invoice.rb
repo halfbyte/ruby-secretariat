@@ -26,7 +26,7 @@ module Secretariat
     :service_period_end,
     :delivery_date,
     :invoice_type,
-    :invoice_reference_id,
+    :invoice_reference_number,
     :invoice_reference_date,
     :seller,
     :buyer,

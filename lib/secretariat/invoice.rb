@@ -333,10 +333,10 @@ module Secretariat
                 Helpers.currency_element(xml, 'ram', 'DuePayableAmount', due_amount, currency_code, add_currency: version == 1)
               end
 
-              if invoice_reference_id && invoice_reference_date
+              if invoice_reference_number && invoice_reference_date
                 invoice_reference = by_version(version, 'InvoiceReferencedDocument', 'InvoiceReferencedDocument')
                 xml['ram'].send(invoice_reference) do
-                  xml['ram'].IssuerAssignedID invoice_reference_id
+                  xml['ram'].IssuerAssignedID invoice_reference_number
                   xml['ram'].FormattedIssueDateTime do
                     xml['qdt'].DateTimeString(format: '102') do
                       xml.text(invoice_reference_date.strftime('%Y%m%d'))

@@ -588,5 +588,12 @@ module Secretariat
       end
       assert_equal [], errors
     end
+
+    def test_invoice_object_extensions
+      invoice = make_de_invoice
+      xml = invoice.to_xml(version: 2)
+
+      assert_match(/<ram:PaymentReference>#{invoice.payment_reference}<\/ram:PaymentReference>/, xml)
+    end
   end
 end

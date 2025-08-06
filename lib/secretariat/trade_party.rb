@@ -15,12 +15,14 @@ limitations under the License.
 =end
 
 module Secretariat
+  using ObjectExtensions
+  
   TradeParty = Struct.new('TradeParty',
     :name, :street1, :street2, :city, :postal_code, :country_id, :vat_id, :global_id, :global_id_scheme_id, :tax_id,
     keyword_init: true,
   ) do
     def to_xml(xml, exclude_tax: false, version: 2)
-      if global_id && global_id != '' && global_id_scheme_id && global_id_scheme_id != ''
+      if global_id.present? && global_id_scheme_id.present?
         xml['ram'].GlobalID(schemeID: global_id_scheme_id) do
           xml.text(global_id)
         end
@@ -29,19 +31,19 @@ module Secretariat
       xml['ram'].PostalTradeAddress do
         xml['ram'].PostcodeCode postal_code
         xml['ram'].LineOne street1
-        if street2 && street2 != ''
+        if street2.present?
           xml['ram'].LineTwo street2
         end
         xml['ram'].CityName city
         xml['ram'].CountryID country_id
       end
-      if !exclude_tax && vat_id && vat_id != ''
+      if !exclude_tax && vat_id.present?
         xml['ram'].SpecifiedTaxRegistration do
           xml['ram'].ID(schemeID: 'VA') do
             xml.text(vat_id)
           end
         end
-      elsif tax_id && tax_id != ''
+      elsif tax_id.present?
         xml['ram'].SpecifiedTaxRegistration do
           xml['ram'].ID(schemeID: 'FC') do
             xml.text(tax_id)

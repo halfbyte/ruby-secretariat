@@ -17,6 +17,8 @@ limitations under the License.
 require 'bigdecimal'
 
 module Secretariat
+  using ObjectExtensions
+  
   Invoice = Struct.new("Invoice",
     :id,
     :issue_date,
@@ -256,7 +258,7 @@ module Secretariat
             end
             trade_settlement = by_version(version, 'ApplicableSupplyChainTradeSettlement', 'ApplicableHeaderTradeSettlement')
             xml['ram'].send(trade_settlement) do
-              if payment_reference && payment_reference != ''
+              if payment_reference.present?
                 xml['ram'].PaymentReference payment_reference
               end
               xml['ram'].InvoiceCurrencyCode currency_code
@@ -273,7 +275,7 @@ module Secretariat
                 xml['ram'].ApplicableTradeTax do
                   Helpers.currency_element(xml, 'ram', 'CalculatedAmount', tax.tax_amount, currency_code, add_currency: version == 1)
                   xml['ram'].TypeCode 'VAT'
-                  if tax_reason_text && tax_reason_text != ''
+                  if tax_reason_text.present?
                     xml['ram'].ExemptionReason tax_reason_text
                   end
                   Helpers.currency_element(xml, 'ram', 'BasisAmount', tax.base_amount, currency_code, add_currency: version == 1)

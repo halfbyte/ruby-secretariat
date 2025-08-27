@@ -33,6 +33,8 @@ module Secretariat
     :payment_terms_text,
     :payment_due_date,
     :payment_iban,
+    :payment_bic,
+    :payment_payee_account_name,
     :tax_category,
     :tax_percent,
     :tax_amount,
@@ -263,9 +265,15 @@ module Secretariat
               xml['ram'].SpecifiedTradeSettlementPaymentMeans do
                 xml['ram'].TypeCode payment_code
                 xml['ram'].Information payment_text
-                if payment_iban
+                if payment_iban || payment_payee_account_name
                   xml['ram'].PayeePartyCreditorFinancialAccount do
-                    xml['ram'].IBANID payment_iban
+                    xml['ram'].IBANID payment_iban if payment_iban
+                    xml['ram'].AccountName payment_payee_account_name if payment_payee_account_name
+                  end
+                end
+                if payment_bic
+                  xml['ram'].PayeeSpecifiedCreditorFinancialInstitution do
+                    xml['ram'].BICID payment_bic
                   end
                 end
               end

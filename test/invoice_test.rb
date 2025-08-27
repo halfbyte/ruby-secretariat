@@ -345,6 +345,8 @@ module Secretariat
         payment_reference: 'INV 123123123',
         payment_iban: 'DE02120300000000202051',
         payment_terms_text: "Wir zahlen die Gutschrift unmittelbar aus",
+        payment_bic: 'BYLADEM1001',
+        payment_payee_account_name: 'Depfu inc',
         tax_category: :STANDARDRATE,
         tax_amount: BigDecimal('-38'),
         basis_amount: BigDecimal('-200'),

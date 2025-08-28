@@ -1,24 +1,20 @@
-=begin
-Copyright Jan Krutisch and contributors (see CONTRIBUTORS.md)
+# Copyright Jan Krutisch and contributors (see CONTRIBUTORS.md)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-=end
-
-require 'bigdecimal'
+require "bigdecimal"
 module Secretariat
-
-
-  LineItem = Struct.new('LineItem',
+  LineItem = Struct.new("LineItem",
     :name,
     :quantity,
     :unit,
@@ -32,9 +28,10 @@ module Secretariat
     :charge_amount,
     :origin_country_code,
     :currency_code,
-    keyword_init: true
-  ) do
+    :global_id,
+    :global_id_scheme_id,
 
+    keyword_init: true) do
     include Versioner
 
     def errors
@@ -71,18 +68,18 @@ module Secretariat
           return false
         end
       end
-      return true
+      true
     end
 
     def unit_code
-      UNIT_CODES[unit] || 'C62'
+      UNIT_CODES[unit] || "C62"
     end
 
     def tax_category_code(version: 2)
       if version == 1
-        return TAX_CATEGORY_CODES_1[tax_category] || 'S'
+        return TAX_CATEGORY_CODES_1[tax_category] || "S"
       end
-      TAX_CATEGORY_CODES[tax_category] || 'S'
+      TAX_CATEGORY_CODES[tax_category] || "S"
     end
 
     def untaxable?
@@ -99,7 +96,7 @@ module Secretariat
       if net_price&.zero?
         self.tax_percent = 0
       end
-      
+
       if net_price&.negative?
         # Zugferd doesn't allow negative amounts at the item level.
         # Instead, a negative quantity is used.
@@ -113,83 +110,83 @@ module Secretariat
         raise ValidationError.new("LineItem #{line_item_index} is invalid", errors)
       end
 
-      xml['ram'].IncludedSupplyChainTradeLineItem do
-        xml['ram'].AssociatedDocumentLineDocument do
-          xml['ram'].LineID line_item_index
+      xml["ram"].IncludedSupplyChainTradeLineItem do
+        xml["ram"].AssociatedDocumentLineDocument do
+          xml["ram"].LineID line_item_index
         end
-        if (version == 2)
-          xml['ram'].SpecifiedTradeProduct do
-            xml['ram'].Name name
-            xml['ram'].OriginTradeCountry do
-              xml['ram'].ID origin_country_code
+        if version == 2
+          xml["ram"].SpecifiedTradeProduct do
+            xml["ram"].Name name
+            xml["ram"].OriginTradeCountry do
+              xml["ram"].ID origin_country_code
             end
           end
         end
-        agreement = by_version(version, 'SpecifiedSupplyChainTradeAgreement', 'SpecifiedLineTradeAgreement')
+        agreement = by_version(version, "SpecifiedSupplyChainTradeAgreement", "SpecifiedLineTradeAgreement")
 
-        xml['ram'].send(agreement) do
-          xml['ram'].GrossPriceProductTradePrice do
-            Helpers.currency_element(xml, 'ram', 'ChargeAmount', gross_amount, currency_code, add_currency: version == 1, digits: 4)
+        xml["ram"].send(agreement) do
+          xml["ram"].GrossPriceProductTradePrice do
+            Helpers.currency_element(xml, "ram", "ChargeAmount", gross_amount, currency_code, add_currency: version == 1, digits: 4)
             if version == 2 && discount_amount
-              xml['ram'].BasisQuantity(unitCode: unit_code) do
+              xml["ram"].BasisQuantity(unitCode: unit_code) do
                 xml.text(Helpers.format(quantity, digits: 4))
               end
-              xml['ram'].AppliedTradeAllowanceCharge do
-                xml['ram'].ChargeIndicator do
-                  xml['udt'].Indicator 'false'
+              xml["ram"].AppliedTradeAllowanceCharge do
+                xml["ram"].ChargeIndicator do
+                  xml["udt"].Indicator "false"
                 end
-                Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
-                xml['ram'].Reason discount_reason
+                Helpers.currency_element(xml, "ram", "ActualAmount", discount_amount, currency_code, add_currency: version == 1)
+                xml["ram"].Reason discount_reason
               end
             end
             if version == 1 && discount_amount
-              xml['ram'].AppliedTradeAllowanceCharge do
-                xml['ram'].ChargeIndicator do
-                  xml['udt'].Indicator 'false'
+              xml["ram"].AppliedTradeAllowanceCharge do
+                xml["ram"].ChargeIndicator do
+                  xml["udt"].Indicator "false"
                 end
-                Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
-                xml['ram'].Reason discount_reason
+                Helpers.currency_element(xml, "ram", "ActualAmount", discount_amount, currency_code, add_currency: version == 1)
+                xml["ram"].Reason discount_reason
               end
             end
           end
-          xml['ram'].NetPriceProductTradePrice do
-            Helpers.currency_element(xml, 'ram', 'ChargeAmount', net_amount, currency_code, add_currency: version == 1, digits: 4)
+          xml["ram"].NetPriceProductTradePrice do
+            Helpers.currency_element(xml, "ram", "ChargeAmount", net_amount, currency_code, add_currency: version == 1, digits: 4)
             if version == 2
-              xml['ram'].BasisQuantity(unitCode: unit_code) do
+              xml["ram"].BasisQuantity(unitCode: unit_code) do
                 xml.text(Helpers.format(quantity, digits: 4))
               end
             end
           end
         end
 
-        delivery = by_version(version, 'SpecifiedSupplyChainTradeDelivery', 'SpecifiedLineTradeDelivery')
+        delivery = by_version(version, "SpecifiedSupplyChainTradeDelivery", "SpecifiedLineTradeDelivery")
 
-        xml['ram'].send(delivery) do
-          xml['ram'].BilledQuantity(unitCode: unit_code) do
+        xml["ram"].send(delivery) do
+          xml["ram"].BilledQuantity(unitCode: unit_code) do
             xml.text(Helpers.format(quantity, digits: 4))
           end
         end
 
-        settlement = by_version(version, 'SpecifiedSupplyChainTradeSettlement', 'SpecifiedLineTradeSettlement')
+        settlement = by_version(version, "SpecifiedSupplyChainTradeSettlement", "SpecifiedLineTradeSettlement")
 
-        xml['ram'].send(settlement) do
-          xml['ram'].ApplicableTradeTax do
-            xml['ram'].TypeCode 'VAT'
-            xml['ram'].CategoryCode tax_category_code(version: version)
+        xml["ram"].send(settlement) do
+          xml["ram"].ApplicableTradeTax do
+            xml["ram"].TypeCode "VAT"
+            xml["ram"].CategoryCode tax_category_code(version: version)
             unless untaxable?
-              percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
-              xml['ram'].send(percent,Helpers.format(tax_percent))            
+              percent = by_version(version, "ApplicablePercent", "RateApplicablePercent")
+              xml["ram"].send(percent, Helpers.format(tax_percent))
             end
           end
-          monetary_summation = by_version(version, 'SpecifiedTradeSettlementMonetarySummation', 'SpecifiedTradeSettlementLineMonetarySummation')
-          xml['ram'].send(monetary_summation) do
-            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', (quantity.negative? ? -charge_amount  : charge_amount), currency_code, add_currency: version == 1)
+          monetary_summation = by_version(version, "SpecifiedTradeSettlementMonetarySummation", "SpecifiedTradeSettlementLineMonetarySummation")
+          xml["ram"].send(monetary_summation) do
+            Helpers.currency_element(xml, "ram", "LineTotalAmount", (quantity.negative? ? -charge_amount : charge_amount), currency_code, add_currency: version == 1)
           end
         end
 
         if version == 1
-          xml['ram'].SpecifiedTradeProduct do
-            xml['ram'].Name name
+          xml["ram"].SpecifiedTradeProduct do
+            xml["ram"].Name name
           end
         end
       end

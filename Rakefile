@@ -1,8 +1,9 @@
-require 'rake/testtask'
+require "rake/testtask"
+require "standard/rake"
 
 Rake::TestTask.new do |t|
-  t.libs = ['lib', 'test']
-  t.pattern = "test/*_test.rb"
+  t.libs = ["lib", "test"]
+  t.pattern = "test/**/*_test.rb"
 end
 
-task :default => [:test]
+task default: [:standard, :test]

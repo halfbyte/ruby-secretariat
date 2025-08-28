@@ -1,20 +1,18 @@
-=begin
-Copyright Jan Krutisch and contributors (see CONTRIBUTORS.md)
+# Copyright Jan Krutisch and contributors (see CONTRIBUTORS.md)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-=end
-
-require 'bigdecimal'
+require "bigdecimal"
 
 module Secretariat
   using ObjectExtensions
@@ -49,9 +47,7 @@ module Secretariat
     :notes,
     :attachments,
     :notes,
-    keyword_init: true
-  ) do
-
+    keyword_init: true) do
     include Versioner
 
     def errors
@@ -64,9 +60,9 @@ module Secretariat
 
     def tax_category_code(tax, version: 2)
       if version == 1
-        return TAX_CATEGORY_CODES_1[tax.tax_category || tax_category] || 'S'
+        return TAX_CATEGORY_CODES_1[tax.tax_category || tax_category] || "S"
       end
-      TAX_CATEGORY_CODES[tax.tax_category || tax_category] || 'S'
+      TAX_CATEGORY_CODES[tax.tax_category || tax_category] || "S"
     end
 
     def taxes
@@ -82,8 +78,8 @@ module Secretariat
 
       line_items.each do |line_item|
         if line_item.tax_percent.nil?
-          taxes['0'] = Tax.new(tax_percent: BigDecimal(0), tax_category: line_item.tax_category, tax_amount: BigDecimal(0)) if taxes['0'].nil?
-          taxes['0'].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
+          taxes["0"] = Tax.new(tax_percent: BigDecimal(0), tax_category: line_item.tax_category, tax_amount: BigDecimal(0)) if taxes["0"].nil?
+          taxes["0"].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
         else
           taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent), tax_category: line_item.tax_category) if taxes[line_item.tax_percent].nil?
           taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount)
@@ -102,7 +98,7 @@ module Secretariat
     end
 
     def payment_code
-      PAYMENT_CODES[payment_type] || '1'
+      PAYMENT_CODES[payment_type] || "1"
     end
 
     def valid?
@@ -147,31 +143,29 @@ module Secretariat
         @errors << "Line items do not add up to basis amount #{line_item_sum} / #{basis}"
         return false
       end
-      return true
+      true
     end
-
 
     def namespaces(version: 1)
       by_version(version,
         {
-          'xmlns:ram' => 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12',
-          'xmlns:udt' => 'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:15',
-          'xmlns:rsm' => 'urn:ferd:CrossIndustryDocument:invoice:1p0',
-          'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
+          "xmlns:ram" => "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12",
+          "xmlns:udt" => "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:15",
+          "xmlns:rsm" => "urn:ferd:CrossIndustryDocument:invoice:1p0",
+          "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance"
         },
         {
-          'xmlns:qdt' => 'urn:un:unece:uncefact:data:standard:QualifiedDataType:100',
-          'xmlns:ram' => 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100',
-          'xmlns:udt' => 'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100',
-          'xmlns:rsm' => 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100',
-          'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
-        }
-      )
+          "xmlns:qdt" => "urn:un:unece:uncefact:data:standard:QualifiedDataType:100",
+          "xmlns:ram" => "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100",
+          "xmlns:udt" => "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100",
+          "xmlns:rsm" => "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100",
+          "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance"
+        })
     end
 
     def to_xml(version: 1, validate: true)
       if version < 1 || version > 2
-        raise 'Unsupported Document Version'
+        raise "Unsupported Document Version"
       end
 
       if validate && !valid?
@@ -179,30 +173,28 @@ module Secretariat
       end
 
       builder = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
+        root = by_version(version, "CrossIndustryDocument", "CrossIndustryInvoice")
 
-        root = by_version(version, 'CrossIndustryDocument', 'CrossIndustryInvoice')
+        xml["rsm"].send(root, namespaces(version: version)) do
+          context = by_version(version, "SpecifiedExchangedDocumentContext", "ExchangedDocumentContext")
 
-        xml['rsm'].send(root, namespaces(version: version)) do
-
-          context = by_version(version, 'SpecifiedExchangedDocumentContext', 'ExchangedDocumentContext')
-
-          xml['rsm'].send(context) do
-            xml['ram'].GuidelineSpecifiedDocumentContextParameter do
-              version_id = by_version(version, 'urn:ferd:CrossIndustryDocument:invoice:1p0:comfort', 'urn:cen.eu:en16931:2017')
-              xml['ram'].ID version_id
+          xml["rsm"].send(context) do
+            xml["ram"].GuidelineSpecifiedDocumentContextParameter do
+              version_id = by_version(version, "urn:ferd:CrossIndustryDocument:invoice:1p0:comfort", "urn:cen.eu:en16931:2017")
+              xml["ram"].ID version_id
             end
           end
 
-          header = by_version(version, 'HeaderExchangedDocument', 'ExchangedDocument')
+          header = by_version(version, "HeaderExchangedDocument", "ExchangedDocument")
 
-          xml['rsm'].send(header) do
-            xml['ram'].ID id
+          xml["rsm"].send(header) do
+            xml["ram"].ID id
             if version == 1
-              xml['ram'].Name "RECHNUNG"
+              xml["ram"].Name "RECHNUNG"
             end
-            xml['ram'].TypeCode '380' # TODO: make configurable
-            xml['ram'].IssueDateTime do
-              xml['udt'].DateTimeString(format: '102') do
+            xml["ram"].TypeCode "380" # TODO: make configurable
+            xml["ram"].IssueDateTime do
+              xml["udt"].DateTimeString(format: "102") do
                 xml.text(issue_date.strftime("%Y%m%d"))
               end
             end
@@ -222,16 +214,16 @@ module Secretariat
               end
             end
 
-            trade_agreement = by_version(version, 'ApplicableSupplyChainTradeAgreement', 'ApplicableHeaderTradeAgreement')
+            trade_agreement = by_version(version, "ApplicableSupplyChainTradeAgreement", "ApplicableHeaderTradeAgreement")
 
-            xml['ram'].send(trade_agreement) do
+            xml["ram"].send(trade_agreement) do
               if buyer_reference
-                xml['ram'].BuyerReference buyer_reference
+                xml["ram"].BuyerReference buyer_reference
               end
-              xml['ram'].SellerTradeParty do
+              xml["ram"].SellerTradeParty do
                 seller.to_xml(xml, version: version)
               end
-              xml['ram'].BuyerTradeParty do
+              xml["ram"].BuyerTradeParty do
                 buyer.to_xml(xml, version: version)
               end
               if version == 2
@@ -243,17 +235,17 @@ module Secretariat
               end
             end
 
-            delivery = by_version(version, 'ApplicableSupplyChainTradeDelivery', 'ApplicableHeaderTradeDelivery')
+            delivery = by_version(version, "ApplicableSupplyChainTradeDelivery", "ApplicableHeaderTradeDelivery")
 
-            xml['ram'].send(delivery) do
+            xml["ram"].send(delivery) do
               if version == 2
-                xml['ram'].ShipToTradeParty do
+                xml["ram"].ShipToTradeParty do
                   buyer.to_xml(xml, exclude_tax: true, version: version)
                 end
               end
-              xml['ram'].ActualDeliverySupplyChainEvent do
-                xml['ram'].OccurrenceDateTime do
-                  xml['udt'].DateTimeString(format: '102') do
+              xml["ram"].ActualDeliverySupplyChainEvent do
+                xml["ram"].OccurrenceDateTime do
+                  xml["udt"].DateTimeString(format: "102") do
                     xml.text(issue_date.strftime("%Y%m%d"))
                   end
                 end
@@ -287,45 +279,45 @@ module Secretariat
                   if tax_reason_text.present?
                     xml['ram'].ExemptionReason tax_reason_text
                   end
-                  Helpers.currency_element(xml, 'ram', 'BasisAmount', tax.base_amount, currency_code, add_currency: version == 1)
-                  xml['ram'].CategoryCode tax_category_code(tax, version: version)
+                  Helpers.currency_element(xml, "ram", "BasisAmount", tax.base_amount, currency_code, add_currency: version == 1)
+                  xml["ram"].CategoryCode tax_category_code(tax, version: version)
                   # unless tax.untaxable?
-                    percent = by_version(version, 'ApplicablePercent', 'RateApplicablePercent')
-                    xml['ram'].send(percent, Helpers.format(tax.tax_percent))
+                  percent = by_version(version, "ApplicablePercent", "RateApplicablePercent")
+                  xml["ram"].send(percent, Helpers.format(tax.tax_percent))
                   # end
                 end
               end
               if version == 2 && service_period_start && service_period_end
-                xml['ram'].BillingSpecifiedPeriod do
-                  xml['ram'].StartDateTime do
+                xml["ram"].BillingSpecifiedPeriod do
+                  xml["ram"].StartDateTime do
                     Helpers.date_element(xml, service_period_start)
                   end
-                  xml['ram'].EndDateTime do
+                  xml["ram"].EndDateTime do
                     Helpers.date_element(xml, service_period_end)
                   end
                 end
               end
-              xml['ram'].SpecifiedTradePaymentTerms do
-                xml['ram'].Description payment_terms_text || "Paid"
+              xml["ram"].SpecifiedTradePaymentTerms do
+                xml["ram"].Description payment_terms_text || "Paid"
                 if payment_due_date
-                  xml['ram'].DueDateDateTime do
+                  xml["ram"].DueDateDateTime do
                     Helpers.date_element(xml, payment_due_date)
                   end
                 end
               end
 
-              monetary_summation = by_version(version, 'SpecifiedTradeSettlementMonetarySummation', 'SpecifiedTradeSettlementHeaderMonetarySummation')
+              monetary_summation = by_version(version, "SpecifiedTradeSettlementMonetarySummation", "SpecifiedTradeSettlementHeaderMonetarySummation")
 
-              xml['ram'].send(monetary_summation) do
-                Helpers.currency_element(xml, 'ram', 'LineTotalAmount', basis_amount, currency_code, add_currency: version == 1)
+              xml["ram"].send(monetary_summation) do
+                Helpers.currency_element(xml, "ram", "LineTotalAmount", basis_amount, currency_code, add_currency: version == 1)
                 # TODO: Fix this!
-                Helpers.currency_element(xml, 'ram', 'ChargeTotalAmount', BigDecimal(0), currency_code, add_currency: version == 1)
-                Helpers.currency_element(xml, 'ram', 'AllowanceTotalAmount', BigDecimal(0), currency_code, add_currency: version == 1)
-                Helpers.currency_element(xml, 'ram', 'TaxBasisTotalAmount', basis_amount, currency_code, add_currency: version == 1)
-                Helpers.currency_element(xml, 'ram', 'TaxTotalAmount', tax_amount, currency_code, add_currency: true)
-                Helpers.currency_element(xml, 'ram', 'GrandTotalAmount', grand_total_amount, currency_code, add_currency: version == 1)
-                Helpers.currency_element(xml, 'ram', 'TotalPrepaidAmount', paid_amount, currency_code, add_currency: version == 1)
-                Helpers.currency_element(xml, 'ram', 'DuePayableAmount', due_amount, currency_code, add_currency: version == 1)
+                Helpers.currency_element(xml, "ram", "ChargeTotalAmount", BigDecimal(0), currency_code, add_currency: version == 1)
+                Helpers.currency_element(xml, "ram", "AllowanceTotalAmount", BigDecimal(0), currency_code, add_currency: version == 1)
+                Helpers.currency_element(xml, "ram", "TaxBasisTotalAmount", basis_amount, currency_code, add_currency: version == 1)
+                Helpers.currency_element(xml, "ram", "TaxTotalAmount", tax_amount, currency_code, add_currency: true)
+                Helpers.currency_element(xml, "ram", "GrandTotalAmount", grand_total_amount, currency_code, add_currency: version == 1)
+                Helpers.currency_element(xml, "ram", "TotalPrepaidAmount", paid_amount, currency_code, add_currency: version == 1)
+                Helpers.currency_element(xml, "ram", "DuePayableAmount", due_amount, currency_code, add_currency: version == 1)
               end
             end
             if version == 1

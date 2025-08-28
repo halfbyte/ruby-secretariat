@@ -39,6 +39,8 @@ module Secretariat
     :payment_terms_text,
     :payment_due_date,
     :payment_iban,
+    :payment_bic,
+    :payment_payee_account_name,
     :tax_category,
     :tax_percent,
     :tax_amount,
@@ -48,6 +50,7 @@ module Secretariat
     :due_amount,
     :paid_amount,
     :tax_calculation_method,
+    :notes,
     :attachments,
     keyword_init: true
   ) do
@@ -90,7 +93,7 @@ module Secretariat
           taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
         end
       end
-      
+
       if tax_calculation_method == :VERTICAL
         taxes.values.map do |tax|
           tax.tax_amount = (tax.base_amount * tax.tax_percent / 100).round(2)
@@ -119,7 +122,12 @@ module Secretariat
         @errors << "Base amount and summed tax base amount deviate: #{basis} / #{summed_tax_base_amount}"
         return false
       end
-      if tax_calculation_method != :NONE
+      if tax_calculation_method == :ITEM_BASED
+        line_items_tax_amount = line_items.sum(&:tax_amount)
+        if tax_amount != line_items_tax_amount
+          @errors << "Tax amount #{tax_amount} and summed up item tax amounts #{line_items_tax_amount} deviate"
+        end
+      elsif tax_calculation_method != :NONE
         taxes.each do |tax|
           calc_tax = tax.base_amount * BigDecimal(tax.tax_percent) / BigDecimal(100)
           calc_tax = calc_tax.round(2)
@@ -179,7 +187,7 @@ module Secretariat
         raise ValidationError.new("Invoice is invalid", errors)
       end
 
-      builder = Nokogiri::XML::Builder.new do |xml|
+      builder = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
 
         root = by_version(version, 'CrossIndustryDocument', 'CrossIndustryInvoice')
 
@@ -216,8 +224,13 @@ module Secretariat
                 xml.text(issue_date.strftime("%Y%m%d"))
               end
             end
-
+            Array(self.notes).each do |note|
+              xml['ram'].IncludedNote do
+                xml['ram'].Content note
+              end
+            end
           end
+
           transaction = by_version(version, 'SpecifiedSupplyChainTradeTransaction', 'SupplyChainTradeTransaction')
           xml['rsm'].send(transaction) do
 
@@ -276,12 +289,16 @@ module Secretariat
               xml['ram'].InvoiceCurrencyCode currency_code
               xml['ram'].SpecifiedTradeSettlementPaymentMeans do
                 xml['ram'].TypeCode payment_code
-                if payment_text.present?
-                  xml['ram'].Information payment_text
-                end
-                if payment_iban.present?
+                xml['ram'].Information payment_text
+                if payment_iban || payment_payee_account_name
                   xml['ram'].PayeePartyCreditorFinancialAccount do
-                    xml['ram'].IBANID payment_iban
+                    xml['ram'].IBANID payment_iban if payment_iban
+                    xml['ram'].AccountName payment_payee_account_name if payment_payee_account_name
+                  end
+                end
+                if payment_bic
+                  xml['ram'].PayeeSpecifiedCreditorFinancialInstitution do
+                    xml['ram'].BICID payment_bic
                   end
                 end
               end

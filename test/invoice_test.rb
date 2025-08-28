@@ -53,7 +53,8 @@ module Secretariat
         grand_total_amount: BigDecimal('29'),
         due_amount: 0,
         paid_amount: 29,
-        payment_due_date: Date.today + 14
+        payment_due_date: Date.today + 14,
+        notes: "This is a test invoice",
       )
     end
 
@@ -351,6 +352,8 @@ module Secretariat
         payment_reference: 'INV 123123123',
         payment_iban: 'DE02120300000000202051',
         payment_terms_text: "Wir zahlen die Gutschrift unmittelbar aus",
+        payment_bic: 'BYLADEM1001',
+        payment_payee_account_name: 'Depfu inc',
         tax_category: :STANDARDRATE,
         tax_amount: BigDecimal('-38'),
         basis_amount: BigDecimal('-200'),
@@ -408,7 +411,7 @@ module Secretariat
     rescue ValidationError => e
       puts e.errors
     end
-    
+
     def test_simple_foreign_invoice_v2_untaxed
       begin
         xml = make_foreign_invoice(tax_category: :UNTAXEDSERVICE).to_xml(version: 2)
@@ -568,7 +571,7 @@ module Secretariat
       end
       assert_equal [], errors
     end
-    
+
     def test_negative_de_invoice_against_schematron_1
       xml = make_negative_de_invoice.to_xml(version: 1)
       v = Validator.new(xml, version: 1)
@@ -593,6 +596,13 @@ module Secretariat
         end
       end
       assert_equal [], errors
+    end
+
+    def test_invoice_object_extensions
+      invoice = make_de_invoice
+      xml = invoice.to_xml(version: 2)
+
+      assert_match(/<ram:PaymentReference>#{invoice.payment_reference}<\/ram:PaymentReference>/, xml)
     end
   end
 end

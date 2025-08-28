@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.7.0
+
+- [FEATURE] Add ability to add BIC and payee name to help with Verification of Payee. PR by @tosch
+- [CHORE] Introduce ActiveSupport style presence checks as refinement on Object. PR by @bigsolom
+
 ## 3.6.0
 
 - [FEATURE] Add ability to add notes. PR by @corny

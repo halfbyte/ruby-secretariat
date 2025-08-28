@@ -30,7 +30,6 @@ module Secretariat
     :currency_code,
     :global_id,
     :global_id_scheme_id,
-
     keyword_init: true) do
     include Versioner
 

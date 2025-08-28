@@ -139,7 +139,7 @@ Unsere Art.-Nr.: TB100A4
 Trennblätter A4
         </ram:Name>
       </ram:SpecifiedTradeProduct>
-	        <ram:SpecifiedLineTradeAgreement>
+      <ram:SpecifiedLineTradeAgreement>
         <ram:NetPriceProductTradePrice>
           <ram:ChargeAmount>9.90</ram:ChargeAmount>
         </ram:NetPriceProductTradePrice>
@@ -148,10 +148,10 @@ Trennblätter A4
         <ram:BilledQuantity unitCode="H87">20.0000</ram:BilledQuantity>
       </ram:SpecifiedLineTradeDelivery>
       <ram:SpecifiedLineTradeSettlement>
-	   <ram:ApplicableTradeTax>
+        <ram:ApplicableTradeTax>
        <ram:TypeCode>VAT</ram:TypeCode>
        <ram:CategoryCode>S</ram:CategoryCode>
-          <ram:RateApplicablePercent>19</ram:RateApplicablePercent>
+          <ram:RateApplicablePercent>19.00</ram:RateApplicablePercent>
         </ram:ApplicableTradeTax>
         <ram:SpecifiedTradeSettlementLineMonetarySummation>
           <ram:LineTotalAmount>198.00</ram:LineTotalAmount>

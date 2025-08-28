@@ -7,18 +7,16 @@ module Secretariat
       def make_basic_invoice
         ::Secretariat::Invoice.new(
           id: "471102",
-          issue_date: Date.new(2020, 0o3, 0o5),
-          service_period_start: Date.today,
-          service_period_end: Date.today + 30,
-          currency_code: "USD",
+          issue_date: Date.new(2020, 3, 5),
+          currency_code: "EUR",
           payment_type: :CREDITCARD,
           payment_text: "Kreditkarte",
-          tax_amount: 0,
-          basis_amount: BigDecimal(29),
-          grand_total_amount: BigDecimal(29),
-          due_amount: 0,
-          paid_amount: 29,
-          payment_due_date: Date.today + 14,
+          tax_amount: BigDecimal("37.62", 10),
+          basis_amount: BigDecimal(198),
+          grand_total_amount: BigDecimal("235.62", 10),
+          due_amount: BigDecimal("235.62", 10),
+          paid_amount: 0,
+          payment_due_date: Date.new(2020, 4, 4),
           notes: [
             "Rechnung gemäß Bestellung vom 01.03.2020.",
             "Lieferant GmbH
@@ -42,14 +40,32 @@ Unsere Art.-Nr.: TB100A4
 Trennblätter A4
         ",
             quantity: 20.00,
-            unit: "H87",
-            gross_amount: 9.99,
+            unit: :PIECE,
+            net_amount: 9.90,
             tax_category: "S",
-            tax_percent: 19,
+            tax_percent: 19.00,
+            tax_amount: 37.62,
             charge_amount: 198.00,
             global_id: "4012345001235",
             global_id_scheme_id: "0160"
-          )]
+          )],
+          buyer: ::Secretariat::TradeParty.new({
+            name: "Kunden AG Mitte",
+            street1: "Hans Muster",
+            street2: "Kundenstraße 15",
+            city: "Frankfurt",
+            postal_code: "69876",
+            country_id: "DE"
+          }),
+          seller: ::Secretariat::TradeParty.new({
+            name: "Lieferant GmbH",
+            street1: "Lieferantenstraße 20",
+            city: "München",
+            postal_code: "80333",
+            country_id: "DE",
+            vat_id: "DE123456789",
+            tax_id: "201/113/40209"
+          })
         )
       end
 

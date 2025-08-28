@@ -26,7 +26,7 @@ class Minitest::Test
     has_differences = diff.reject { |c, n| c == " " }.any? # standard:disable Style/HashExcept
 
     formatted = diff.map do |change, node|
-      if change != " " && node.is_a?(Nokogiri::XML::Text)
+      if change != " " && node.is_a?(Nokogiri::XML::Text) || node.is_a?(Nokogiri::XML::Attr)
         change + " #{node.to_s.tr(" ", ".")}".ljust(20) + " " + node.path
       else
         change + " ".ljust(20) + node.path

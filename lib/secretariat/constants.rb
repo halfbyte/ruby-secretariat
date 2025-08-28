@@ -67,7 +67,7 @@ module Secretariat
   TAX_CALCULATION_METHODS = %i[HORIZONTAL VERTICAL NONE UNKNOWN].freeze
 
   UNIT_CODES = {
-    PIECE: "C62",
+    PIECE: "H87",
     DAY: "DAY",
     HECTARE: "HAR",
     HOUR: "HUR",

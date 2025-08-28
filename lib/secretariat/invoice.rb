@@ -81,9 +81,9 @@ module Secretariat
           taxes["0"] = Tax.new(tax_percent: BigDecimal(0), tax_category: line_item.tax_category, tax_amount: BigDecimal(0)) if taxes["0"].nil?
           taxes["0"].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
         else
-          taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent), tax_category: line_item.tax_category) if taxes[line_item.tax_percent].nil?
-          taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount)
-          taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
+          taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent, 10), tax_category: line_item.tax_category) if taxes[line_item.tax_percent].nil?
+          taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount, 10)
+          taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount, 10) * line_item.quantity
         end
       end
 

@@ -16,7 +16,7 @@ require "bigdecimal"
 
 module Secretariat
   using ObjectExtensions
-  
+
   Invoice = Struct.new("Invoice",
     :id,
     :issue_date,
@@ -46,7 +46,6 @@ module Secretariat
     :tax_calculation_method,
     :notes,
     :attachments,
-    :notes,
     keyword_init: true) do
     include Versioner
 
@@ -198,16 +197,15 @@ module Secretariat
                 xml.text(issue_date.strftime("%Y%m%d"))
               end
             end
-            Array(self.notes).each do |note|
-              xml['ram'].IncludedNote do
-                xml['ram'].Content note
+            Array(notes).each do |note|
+              xml["ram"].IncludedNote do
+                xml["ram"].Content note
               end
             end
           end
 
-          transaction = by_version(version, 'SpecifiedSupplyChainTradeTransaction', 'SupplyChainTradeTransaction')
-          xml['rsm'].send(transaction) do
-
+          transaction = by_version(version, "SpecifiedSupplyChainTradeTransaction", "SupplyChainTradeTransaction")
+          xml["rsm"].send(transaction) do
             if version == 2
               line_items.each_with_index do |item, i|
                 item.to_xml(xml, i + 1, version: version, validate: validate) # one indexed
@@ -251,33 +249,33 @@ module Secretariat
                 end
               end
             end
-            trade_settlement = by_version(version, 'ApplicableSupplyChainTradeSettlement', 'ApplicableHeaderTradeSettlement')
-            xml['ram'].send(trade_settlement) do
+            trade_settlement = by_version(version, "ApplicableSupplyChainTradeSettlement", "ApplicableHeaderTradeSettlement")
+            xml["ram"].send(trade_settlement) do
               if payment_reference.present?
-                xml['ram'].PaymentReference payment_reference
+                xml["ram"].PaymentReference payment_reference
               end
-              xml['ram'].InvoiceCurrencyCode currency_code
-              xml['ram'].SpecifiedTradeSettlementPaymentMeans do
-                xml['ram'].TypeCode payment_code
-                xml['ram'].Information payment_text
+              xml["ram"].InvoiceCurrencyCode currency_code
+              xml["ram"].SpecifiedTradeSettlementPaymentMeans do
+                xml["ram"].TypeCode payment_code
+                xml["ram"].Information payment_text
                 if payment_iban || payment_payee_account_name
-                  xml['ram'].PayeePartyCreditorFinancialAccount do
-                    xml['ram'].IBANID payment_iban if payment_iban
-                    xml['ram'].AccountName payment_payee_account_name if payment_payee_account_name
+                  xml["ram"].PayeePartyCreditorFinancialAccount do
+                    xml["ram"].IBANID payment_iban if payment_iban
+                    xml["ram"].AccountName payment_payee_account_name if payment_payee_account_name
                   end
                 end
                 if payment_bic
-                  xml['ram'].PayeeSpecifiedCreditorFinancialInstitution do
-                    xml['ram'].BICID payment_bic
+                  xml["ram"].PayeeSpecifiedCreditorFinancialInstitution do
+                    xml["ram"].BICID payment_bic
                   end
                 end
               end
               taxes.each do |tax|
-                xml['ram'].ApplicableTradeTax do
-                  Helpers.currency_element(xml, 'ram', 'CalculatedAmount', tax.tax_amount, currency_code, add_currency: version == 1)
-                  xml['ram'].TypeCode 'VAT'
+                xml["ram"].ApplicableTradeTax do
+                  Helpers.currency_element(xml, "ram", "CalculatedAmount", tax.tax_amount, currency_code, add_currency: version == 1)
+                  xml["ram"].TypeCode "VAT"
                   if tax_reason_text.present?
-                    xml['ram'].ExemptionReason tax_reason_text
+                    xml["ram"].ExemptionReason tax_reason_text
                   end
                   Helpers.currency_element(xml, "ram", "BasisAmount", tax.base_amount, currency_code, add_currency: version == 1)
                   xml["ram"].CategoryCode tax_category_code(tax, version: version)

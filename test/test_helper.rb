@@ -17,8 +17,6 @@ class Minitest::Test
 
     diff = original_xml.diff(test_object_xml)
 
-    pp diff
-
     diff = diff.reject do |c, n|
       n.is_a?(Nokogiri::XML::Comment)
     end

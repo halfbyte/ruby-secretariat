@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative 'secretariat/version'
-require_relative 'secretariat/object_extensions'
-require_relative 'secretariat/constants'
-require_relative 'secretariat/helpers'
-require_relative 'secretariat/versioner'
-require_relative 'secretariat/validation_error'
-require_relative 'secretariat/invoice'
-require_relative 'secretariat/trade_party'
-require_relative 'secretariat/line_item'
-require_relative 'secretariat/validator'
-require_relative 'secretariat/tax'
-require_relative 'secretariat/attachment'
+require_relative "secretariat/version"
+require_relative "secretariat/object_extensions"
+require_relative "secretariat/constants"
+require_relative "secretariat/helpers"
+require_relative "secretariat/versioner"
+require_relative "secretariat/validation_error"
+require_relative "secretariat/invoice"
+require_relative "secretariat/trade_party"
+require_relative "secretariat/line_item"
+require_relative "secretariat/validator"
+require_relative "secretariat/tax"
+require_relative "secretariat/attachment"
 
 require_relative "secretariat/serializers/basic"

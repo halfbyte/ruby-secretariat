@@ -57,6 +57,61 @@ module Secretariat
       )
     end
 
+    def make_eu_invoice_with_line_item_billing_period(tax_category: :REVERSECHARGE)
+      seller = TradeParty.new(
+        name: 'Depfu inc',
+        street1: 'Quickbornstr. 46',
+        city: 'Hamburg',
+        postal_code: '20253',
+        country_id: 'DE',
+        vat_id: 'DE304755032'
+      )
+      buyer = TradeParty.new(
+        name: 'Depfu inc',
+        street1: 'Quickbornstr. 46',
+        city: 'Hamburg',
+        postal_code: '20253',
+        country_id: 'SE',
+        vat_id: 'SE304755032'
+      )
+      line_item = LineItem.new(
+        name: 'Depfu Premium Plan',
+        quantity: 1,
+        gross_amount: BigDecimal('29'),
+        net_amount: BigDecimal('29'),
+        unit: :YEAR,
+        charge_amount: BigDecimal('29'),
+        tax_category: tax_category,
+        tax_percent: 0,
+        tax_amount: 0,
+        origin_country_code: 'DE',
+        currency_code: 'EUR',
+        service_period_start: Date.today,
+        service_period_end: Date.today + 364,
+      )
+      Invoice.new(
+        id: '12345',
+        issue_date: Date.today,
+        # service_period on line_item. removed here to simplify testing of BillingSpecifiedPeriod presence
+        # service_period_start: Date.today,
+        # service_period_end: Date.today + 30,
+        seller: seller,
+        buyer: buyer,
+        line_items: [line_item],
+        currency_code: 'USD',
+        payment_type: :CREDITCARD,
+        payment_text: 'Kreditkarte',
+        tax_category: tax_category,
+        tax_amount: 0,
+        basis_amount: BigDecimal('29'),
+        grand_total_amount: BigDecimal('29'),
+        due_amount: 0,
+        paid_amount: 29,
+        payment_due_date: Date.today + 14,
+        notes: "This is a test invoice",
+      )
+    end
+
     def make_foreign_invoice(tax_category: :TAXEXEMPT)
       seller = TradeParty.new(
         name: 'Depfu inc',
@@ -367,6 +422,31 @@ module Secretariat
       assert_match(/<ram:CategoryCode>AE<\/ram:CategoryCode>/, xml)
       assert_match(/<ram:ExemptionReason>Reverse Charge<\/ram:ExemptionReason>/, xml)
       assert_match(/<ram:RateApplicablePercent>/, xml)
+
+      v = Validator.new(xml, version: 2)
+      errors = v.validate_against_schema
+      if !errors.empty?
+        puts xml
+        errors.each do |error|
+          puts error
+        end
+      end
+      assert_equal [], errors
+    rescue ValidationError => e
+      puts e.errors
+    end
+
+    def test_simple_eu_invoice_v2_with_line_item_billing_period
+      begin
+        xml = make_eu_invoice_with_line_item_billing_period.to_xml(version: 2)
+      rescue ValidationError => e
+        pp e.errors
+      end
+
+      assert_match(/<ram:CategoryCode>AE<\/ram:CategoryCode>/, xml)
+      assert_match(/<ram:ExemptionReason>Reverse Charge<\/ram:ExemptionReason>/, xml)
+      assert_match(/<ram:RateApplicablePercent>/, xml)
+      assert_match(/<ram:BillingSpecifiedPeriod>/, xml)
 
       v = Validator.new(xml, version: 2)
       errors = v.validate_against_schema

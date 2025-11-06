@@ -20,7 +20,7 @@ module Secretariat
 
   LineItem = Struct.new('LineItem',
     :name,
-    :quantity,
+    :billed_quantity,
     :unit,
     :gross_amount,
     :net_amount,
@@ -32,10 +32,35 @@ module Secretariat
     :charge_amount,
     :origin_country_code,
     :currency_code,
+    :basis_quantity,
     keyword_init: true
   ) do
 
     include Versioner
+
+    def initialize(**kwargs)
+      if kwargs.key?(:quantity) && !kwargs.key?(:billed_quantity)
+        kwargs[:billed_quantity] = kwargs.delete(:quantity)
+      end
+      super(**kwargs)
+    end
+
+    def quantity
+      warn_once_quantity
+      billed_quantity
+    end
+
+    def quantity=(val)
+      warn_once_quantity
+      self.billed_quantity = val
+    end
+
+    def warn_once_quantity
+      unless @__warned_quantity
+        Kernel.warn("[secretariat] LineItem#quantity is deprecated; use #billed_quantity")
+        @__warned_quantity = true
+      end
+    end
 
     def errors
       @errors
@@ -47,7 +72,7 @@ module Secretariat
       gross_price = BigDecimal(gross_amount)
       charge_price = BigDecimal(charge_amount)
       tax = BigDecimal(tax_amount)
-      unit_price = net_price * BigDecimal(quantity.abs)
+      unit_price = net_price * BigDecimal(billed_quantity.abs)
 
       if charge_price != unit_price
         @errors << "charge price and gross price times quantity deviate: #{charge_price} / #{unit_price}"
@@ -65,7 +90,7 @@ module Secretariat
         self.tax_percent ||= BigDecimal(0)
         calculated_tax = charge_price * BigDecimal(tax_percent) / BigDecimal(100)
         calculated_tax = calculated_tax.round(2)
-        calculated_tax = -calculated_tax if quantity.negative?
+        calculated_tax = -calculated_tax if billed_quantity.negative?
         if calculated_tax != tax
           @errors << "Tax and calculated tax deviate: #{tax} / #{calculated_tax}"
           return false
@@ -76,6 +101,13 @@ module Secretariat
 
     def unit_code
       UNIT_CODES[unit] || 'C62'
+    end
+
+    # If not provided, BasisQuantity should be 1.0 (price per 1 unit)
+    def effective_basis_quantity
+      q = basis_quantity.nil? ? BigDecimal("1.0") : BigDecimal(basis_quantity.to_s)
+      raise ArgumentError, "basis_quantity must be > 0" if q <= 0
+      q
     end
 
     def tax_category_code(version: 2)
@@ -103,7 +135,7 @@ module Secretariat
       if net_price&.negative?
         # Zugferd doesn't allow negative amounts at the item level.
         # Instead, a negative quantity is used.
-        self.quantity = -quantity
+        self.billed_quantity = -billed_quantity
         self.gross_amount = gross_price&.abs
         self.net_amount = net_price&.abs
         self.charge_amount = charge_price&.abs
@@ -132,7 +164,7 @@ module Secretariat
             Helpers.currency_element(xml, 'ram', 'ChargeAmount', gross_amount, currency_code, add_currency: version == 1, digits: 4)
             if version == 2 && discount_amount
               xml['ram'].BasisQuantity(unitCode: unit_code) do
-                xml.text(Helpers.format(quantity, digits: 4))
+                xml.text(Helpers.format(effective_basis_quantity, digits: 4))
               end
               xml['ram'].AppliedTradeAllowanceCharge do
                 xml['ram'].ChargeIndicator do
@@ -156,7 +188,7 @@ module Secretariat
             Helpers.currency_element(xml, 'ram', 'ChargeAmount', net_amount, currency_code, add_currency: version == 1, digits: 4)
             if version == 2
               xml['ram'].BasisQuantity(unitCode: unit_code) do
-                xml.text(Helpers.format(quantity, digits: 4))
+                xml.text(Helpers.format(effective_basis_quantity, digits: 4))
               end
             end
           end
@@ -166,7 +198,7 @@ module Secretariat
 
         xml['ram'].send(delivery) do
           xml['ram'].BilledQuantity(unitCode: unit_code) do
-            xml.text(Helpers.format(quantity, digits: 4))
+            xml.text(Helpers.format(billed_quantity, digits: 4))
           end
         end
 
@@ -183,7 +215,7 @@ module Secretariat
           end
           monetary_summation = by_version(version, 'SpecifiedTradeSettlementMonetarySummation', 'SpecifiedTradeSettlementLineMonetarySummation')
           xml['ram'].send(monetary_summation) do
-            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', (quantity.negative? ? -charge_amount  : charge_amount), currency_code, add_currency: version == 1)
+            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', (billed_quantity.negative? ? -charge_amount  : charge_amount), currency_code, add_currency: version == 1)
           end
         end
 

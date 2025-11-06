@@ -82,11 +82,11 @@ module Secretariat
       line_items.each do |line_item|
         if line_item.tax_percent.nil?
           taxes['0'] = Tax.new(tax_percent: BigDecimal(0), tax_category: line_item.tax_category, tax_amount: BigDecimal(0)) if taxes['0'].nil?
-          taxes['0'].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
+          taxes['0'].base_amount += BigDecimal(line_item.net_amount) * line_item.billed_quantity
         else
           taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent), tax_category: line_item.tax_category) if taxes[line_item.tax_percent].nil?
           taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount)
-          taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.quantity
+          taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.billed_quantity
         end
       end
 
@@ -140,7 +140,7 @@ module Secretariat
         return false
       end
       line_item_sum = line_items.inject(BigDecimal(0)) do |m, item|
-        m + BigDecimal(item.quantity.negative? ? -item.charge_amount : item.charge_amount)
+        m + BigDecimal(item.billed_quantity.negative? ? -item.charge_amount : item.charge_amount)
       end
       if line_item_sum != basis
         @errors << "Line items do not add up to basis amount #{line_item_sum} / #{basis}"

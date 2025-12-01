@@ -5,7 +5,7 @@ require 'base64'
 module Secretariat
   class InvoiceTest < Minitest::Test
 
-    def make_eu_invoice(tax_category: :REVERSECHARGE)
+    def make_eu_invoice(tax_category: :REVERSECHARGE, ship_to: nil)
       seller = TradeParty.new(
         name: 'Depfu inc',
         street1: 'Quickbornstr. 46',
@@ -43,6 +43,7 @@ module Secretariat
         service_period_end: Date.today + 30,
         seller: seller,
         buyer: buyer,
+        ship_to: ship_to,
         line_items: [line_item],
         currency_code: 'USD',
         payment_type: :CREDITCARD,
@@ -369,6 +370,28 @@ module Secretariat
       assert_match(/<ram:ExemptionReason>Reverse Charge<\/ram:ExemptionReason>/, xml)
       assert_match(/<ram:RateApplicablePercent>/, xml)
       assert_match(%r{<ram:BuyerTradeParty>\s*<ram:ID>Kunde 4711</ram:ID>}, xml)
+
+      v = Validator.new(xml, version: 2)
+      errors = v.validate_against_schema
+      if !errors.empty?
+        puts xml
+        errors.each do |error|
+          puts error
+        end
+      end
+      assert_equal [], errors
+    rescue ValidationError => e
+      puts e.errors
+    end
+
+    def test_simple_eu_invoice_v2_without_ship_to
+      begin
+        xml = make_eu_invoice(ship_to: false).to_xml(version: 2)
+      rescue ValidationError => e
+        pp e.errors
+      end
+
+      refute_match(/<ram:ShipToTradeParty>/, xml)
 
       v = Validator.new(xml, version: 2)
       errors = v.validate_against_schema

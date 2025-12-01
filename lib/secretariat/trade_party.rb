@@ -23,7 +23,7 @@ module Secretariat
     keyword_init: true,
   ) do
     def to_xml(xml, exclude_tax: false, version: 2)
-      if id
+      if id && !exclude_tax
         xml['ram'].ID id # BT-46
       end
       if global_id.present? && global_id_scheme_id.present?

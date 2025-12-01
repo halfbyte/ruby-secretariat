@@ -53,6 +53,10 @@ module Secretariat
    :DEBITADVICE => "31",
    :CREDITCARD => "48",
    :DEBIT => "49",
+   :CREDITTRANSFER => "54",
+   :DIRECTDEBIT => "55",
+   :SEPACREDITTRANSFER => "58",
+   :SEPADIRECTDEBIT => "59",
    :COMPENSATION => "97"
   }
 

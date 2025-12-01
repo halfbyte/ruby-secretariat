@@ -174,6 +174,7 @@ module Secretariat
       )
       buyer = TradeParty.new(
         name: 'Depfu inc',
+        person_name: 'Max Mustermann',
         street1: 'Quickbornstr. 46',
         city: 'Hamburg',
         postal_code: '20253',
@@ -596,6 +597,7 @@ module Secretariat
       xml = invoice.to_xml(version: 2)
 
       assert_match(/<ram:PaymentReference>#{invoice.payment_reference}<\/ram:PaymentReference>/, xml)
+      assert_match(%r{<ram:DefinedTradeContact>\s*<ram:PersonName>Max Mustermann</ram:PersonName>\s*</ram:DefinedTradeContact>}, xml)
     end
   end
 end

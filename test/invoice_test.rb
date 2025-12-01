@@ -15,6 +15,7 @@ module Secretariat
         vat_id: 'DE304755032'
       )
       buyer = TradeParty.new(
+        id: 'Kunde 4711',
         name: 'Depfu inc',
         street1: 'Quickbornstr. 46',
         city: 'Hamburg',
@@ -367,6 +368,7 @@ module Secretariat
       assert_match(/<ram:CategoryCode>AE<\/ram:CategoryCode>/, xml)
       assert_match(/<ram:ExemptionReason>Reverse Charge<\/ram:ExemptionReason>/, xml)
       assert_match(/<ram:RateApplicablePercent>/, xml)
+      assert_match(%r{<ram:BuyerTradeParty>\s*<ram:ID>Kunde 4711</ram:ID>}, xml)
 
       v = Validator.new(xml, version: 2)
       errors = v.validate_against_schema

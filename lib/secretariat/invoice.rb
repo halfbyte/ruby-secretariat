@@ -24,8 +24,9 @@ module Secretariat
     :issue_date,
     :service_period_start,
     :service_period_end,
-    :seller,
-    :buyer,
+    :seller, # TradeParty
+    :buyer, # TradeParty
+    :ship_to, # TradeParty or nil (buyer) or false (no ShipTo)
     :buyer_reference,
     :line_items,
     :currency_code,
@@ -62,6 +63,14 @@ module Secretariat
 
     def tax_reason_text(tax)
       tax_reason || TAX_EXEMPTION_REASONS[tax.tax_category || tax_category]
+    end
+
+    # ship_to: nil => use buyer (backwards compatibility)
+    # ship_to: false => ignore
+    def ship_to_or_buyer
+      return buyer if ship_to.nil?
+
+      ship_to
     end
 
     def tax_category_code(tax, version: 2)
@@ -248,9 +257,9 @@ module Secretariat
             delivery = by_version(version, 'ApplicableSupplyChainTradeDelivery', 'ApplicableHeaderTradeDelivery')
 
             xml['ram'].send(delivery) do
-              if version == 2
+              if version == 2 && ship_to_or_buyer
                 xml['ram'].ShipToTradeParty do
-                  buyer.to_xml(xml, exclude_tax: true, version: version)
+                  ship_to_or_buyer.to_xml(xml, exclude_tax: true, version: version)
                 end
               end
               xml['ram'].ActualDeliverySupplyChainEvent do

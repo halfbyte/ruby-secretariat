@@ -51,7 +51,8 @@ module Secretariat
     :attachments,
     :direct_debit_mandate_reference_id, # BT-89
     :direct_debit_creditor_id, # BT-90
-    :direct_debit_iban, # BT-91
+    :direct_debit_iban, # BT-91,
+    :subject_code, # BT-21
     keyword_init: true
   ) do
 
@@ -220,6 +221,7 @@ module Secretariat
             Array(self.notes).each do |note|
               xml['ram'].IncludedNote do
                 xml['ram'].Content note
+                xml['ram'].SubjectCode subject_code if subject_code
               end
             end
           end

@@ -56,6 +56,7 @@ module Secretariat
         paid_amount: 29,
         payment_due_date: Date.today + 14,
         notes: "This is a test invoice",
+        subject_code: 'REG' # BT-21
       )
     end
 
@@ -111,6 +112,7 @@ module Secretariat
         paid_amount: 29,
         payment_due_date: Date.today + 14,
         notes: "This is a test invoice",
+        subject_code: 'REG' # BT-21
       )
     end
 
@@ -169,6 +171,7 @@ module Secretariat
         direct_debit_mandate_reference_id: "MANDATE REFERENCE", # BT-89
         direct_debit_creditor_id: "DE98ZZZ09999999999", # BT-90
         direct_debit_iban: "DE02120300000000202051", # BT-91
+        subject_code: 'REG' # BT-21
 
       )
     end
@@ -218,7 +221,8 @@ module Secretariat
         grand_total_amount: BigDecimal('29'),
         due_amount: 0,
         paid_amount: 29,
-        payment_due_date: Date.today + 14
+        payment_due_date: Date.today + 14,
+        subject_code: 'REG' # BT-21
       )
     end
 
@@ -275,7 +279,8 @@ module Secretariat
         due_amount: 0,
         paid_amount: 29,
         payment_due_date: Date.today + 14,
-        attachments: [attachment]
+        attachments: [attachment],
+        subject_code: 'REG' # BT-21
       )
     end
 
@@ -333,7 +338,8 @@ module Secretariat
         grand_total_amount: BigDecimal('23.80'),
         due_amount: 0,
         paid_amount: BigDecimal('23.80'),
-        payment_due_date: Date.today + 14
+        payment_due_date: Date.today + 14,
+        subject_code: 'REG' # BT-21
       )
     end
 
@@ -413,7 +419,8 @@ module Secretariat
         grand_total_amount: BigDecimal('55.28'),
         due_amount: 0,
         paid_amount: BigDecimal('55.28'),
-        payment_due_date: Date.today + 14
+        payment_due_date: Date.today + 14,
+        subject_code: 'REG' # BT-21
       )
     end
 

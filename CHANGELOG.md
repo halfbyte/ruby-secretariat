@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.8.0
+
+This version introduces a change in the way quantities are handled in the line items to make it
+more standards compliant. The original `quantity` property will be removed in 4.0.0.
+
+- [FEATURE] Add `billed_quantity` and `basis_quantity` to be more spec compliant. PR by @ahmedm10
+- [FEATURE] Enable different tax reasons per tax. PR by @ahmedm10
+- [FEATURE] Add extra fields to support SEPA direct debit. PR by @ronald
+- [FEATURE] Add extra field to support buyer reference id. PR by @ronald
+- [FEATURE] Add extra field to support buyer person name. PR by @ronald
+
 ## 3.7.0
 
 - [FEATURE] Add ability to add BIC and payee name to help with Verification of Payee. PR by @tosch

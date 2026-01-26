@@ -18,16 +18,26 @@ module Secretariat
   using ObjectExtensions
   
   TradeParty = Struct.new('TradeParty',
+    :id,
     :name, :street1, :street2, :city, :postal_code, :country_id, :vat_id, :global_id, :global_id_scheme_id, :tax_id,
+    :person_name,
     keyword_init: true,
   ) do
     def to_xml(xml, exclude_tax: false, version: 2)
+      if id && !exclude_tax
+        xml['ram'].ID id # BT-46
+      end
       if global_id.present? && global_id_scheme_id.present?
         xml['ram'].GlobalID(schemeID: global_id_scheme_id) do
           xml.text(global_id)
         end
       end
       xml['ram'].Name name
+      if person_name
+        xml['ram'].DefinedTradeContact do
+          xml['ram'].PersonName person_name
+        end
+      end
       xml['ram'].PostalTradeAddress do
         xml['ram'].PostcodeCode postal_code
         xml['ram'].LineOne street1
@@ -53,3 +63,5 @@ module Secretariat
     end
   end
 end
+
+# assert_match(%r{<ram:DefinedTradeContact>\s*<ram:PersonName>Max Mustermann</ram:PersonName>\s*</ram:DefinedTradeContact>}, xml)

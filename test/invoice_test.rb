@@ -793,9 +793,13 @@ module Secretariat
     end
 
     def test_invoice_with_quantity_causing_sub_cent_amounts
+      errors = []
+
       invoice = make_de_invoice
       invoice.tax_calculation_method = :ITEM_BASED
       invoice.line_items.first.net_amount = BigDecimal('10.12')
+      invoice.line_items.first.gross_amount = BigDecimal('10.12')
+      invoice.line_items.first.discount_amount = BigDecimal('0')
       invoice.line_items.first.billed_quantity = BigDecimal('0.1')
       invoice.line_items.first.charge_amount = BigDecimal('1.01')
       invoice.line_items.first.tax_amount = BigDecimal('0.19')
@@ -803,8 +807,13 @@ module Secretariat
       invoice.tax_amount = BigDecimal('0.19')
       invoice.grand_total_amount = BigDecimal('1.2')
 
-      invoice.valid?
-      assert_equal [], invoice.errors
+      begin
+        invoice.to_xml(version: 2)
+      rescue ValidationError => e
+        errors = e.errors
+        pp e.errors
+      end
+      assert_equal [], errors
     end
   end
 end

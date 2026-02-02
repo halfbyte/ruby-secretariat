@@ -791,5 +791,20 @@ module Secretariat
       assert_match(/<ram:PaymentReference>#{invoice.payment_reference}<\/ram:PaymentReference>/, xml)
       assert_match(%r{<ram:DefinedTradeContact>\s*<ram:PersonName>Max Mustermann</ram:PersonName>\s*</ram:DefinedTradeContact>}, xml)
     end
+
+    def test_invoice_with_quantity_causing_sub_cent_amounts
+      invoice = make_de_invoice
+      invoice.tax_calculation_method = :ITEM_BASED
+      invoice.line_items.first.net_amount = BigDecimal('10.12')
+      invoice.line_items.first.billed_quantity = BigDecimal('0.1')
+      invoice.line_items.first.charge_amount = BigDecimal('1.01')
+      invoice.line_items.first.tax_amount = BigDecimal('0.19')
+      invoice.basis_amount = BigDecimal('1.01') # 1.012 rounded
+      invoice.tax_amount = BigDecimal('0.19')
+      invoice.grand_total_amount = BigDecimal('1.2')
+
+      invoice.valid?
+      assert_equal [], invoice.errors
+    end
   end
 end

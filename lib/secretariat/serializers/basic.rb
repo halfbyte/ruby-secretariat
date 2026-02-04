@@ -71,7 +71,7 @@ module Secretariat
                   end
                   xml["ram"].SpecifiedLineTradeDelivery do
                     xml["ram"].BilledQuantity(unitCode: line_item.unit_code) do
-                      xml.text(Helpers.format(line_item.quantity, digits: 4))
+                      xml.text(Helpers.format(line_item.billed_quantity, digits: 4))
                     end
                   end
                   xml["ram"].SpecifiedLineTradeSettlement do
@@ -83,7 +83,7 @@ module Secretariat
                       end
                     end
                     xml["ram"].SpecifiedTradeSettlementLineMonetarySummation do
-                      Helpers.currency_element(xml, "ram", "LineTotalAmount", (line_item.quantity.negative? ? -line_item.charge_amount : line_item.charge_amount), line_item.currency_code, add_currency: false)
+                      Helpers.currency_element(xml, "ram", "LineTotalAmount", (line_item.billed_quantity.negative? ? -line_item.charge_amount : line_item.charge_amount), line_item.currency_code, add_currency: false)
                     end
                   end
                 end
@@ -170,8 +170,8 @@ module Secretariat
                   xml["ram"].ApplicableTradeTax do
                     Helpers.currency_element(xml, "ram", "CalculatedAmount", tax.tax_amount, @invoice.currency_code, add_currency: false)
                     xml["ram"].TypeCode "VAT"
-                    if @invoice.tax_reason_text && @invoice.tax_reason_text != ""
-                      xml["ram"].ExemptionReason @invoice.tax_reason_text
+                    if @invoice.tax_reason_text(tax) && @invoice.tax_reason_text(tax) != ""
+                      xml["ram"].ExemptionReason @invoice.tax_reason_text(tax)
                     end
                     Helpers.currency_element(xml, "ram", "BasisAmount", tax.base_amount, @invoice.currency_code, add_currency: false)
                     xml["ram"].CategoryCode @invoice.tax_category_code(tax, version: 2)

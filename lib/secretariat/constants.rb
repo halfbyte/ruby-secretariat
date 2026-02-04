@@ -51,6 +51,10 @@ module Secretariat
     DEBITADVICE: "31",
     CREDITCARD: "48",
     DEBIT: "49",
+    CREDITTRANSFER: "54",
+    DIRECTDEBIT: "55",
+    SEPACREDITTRANSFER: "58",
+    SEPADIRECTDEBIT: "59",
     COMPENSATION: "97"
   }
 
@@ -67,6 +71,7 @@ module Secretariat
   TAX_CALCULATION_METHODS = %i[HORIZONTAL VERTICAL NONE UNKNOWN].freeze
 
   UNIT_CODES = {
+    YEAR: "ANN",
     PIECE: "H87",
     DAY: "DAY",
     HECTARE: "HAR",

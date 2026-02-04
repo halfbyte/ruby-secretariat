@@ -39,7 +39,7 @@ Zahlbar innerhalb 30 Tagen netto bis 04.04.2020, 3% Skonto innerhalb 10 Tagen bi
 Unsere Art.-Nr.: TB100A4
 Trennblätter A4
         ",
-            quantity: 20.00,
+            billed_quantity: 20.00,
             unit: :PIECE,
             net_amount: 9.90,
             tax_category: "S",

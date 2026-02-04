@@ -121,12 +121,12 @@ module Secretariat
       @errors = []
       tax = BigDecimal(tax_amount)
       basis = BigDecimal(basis_amount)
-      summed_tax_amount = taxes.sum(&:tax_amount)
+      summed_tax_amount = taxes.sum(&:tax_amount).round(2)
       if tax != summed_tax_amount
         @errors << "Tax amount and summed tax amounts deviate: #{tax_amount} / #{summed_tax_amount}"
         return false
       end
-      summed_tax_base_amount = taxes.sum(&:base_amount)
+      summed_tax_base_amount = taxes.sum(&:base_amount).round(2)
       if basis != summed_tax_base_amount
         @errors << "Base amount and summed tax base amount deviate: #{basis} / #{summed_tax_base_amount}"
         return false

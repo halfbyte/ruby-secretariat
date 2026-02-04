@@ -99,7 +99,7 @@ module Secretariat
         else
           taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent), tax_category: line_item.tax_category) if taxes[line_item.tax_percent].nil?
           taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount)
-          taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.billed_quantity
+          taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.charge_amount)
         end
       end
 

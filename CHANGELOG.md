@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.8.1
+
+- [FIX] Missing rounding in summed_tax_base_amount. PR by @langalex
+
 ## 3.8.0
 
 This version introduces a change in the way quantities are handled in the line items to make it

@@ -18,3 +18,4 @@ Many thanks to the following contributors (in order of contribution)
 
 @ronald (Mr. Ronald) added support for SEPA extra fields and more fields for buyer reference
 
+@langalex (Alexander Lang) fixed a missing rounding

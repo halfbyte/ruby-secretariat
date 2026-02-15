@@ -492,6 +492,7 @@ module Secretariat
       assert_match(/<ram:ExemptionReason>Reverse Charge<\/ram:ExemptionReason>/, xml)
       assert_match(/<ram:RateApplicablePercent>/, xml)
       assert_match(%r{<ram:BuyerTradeParty>\s*<ram:ID>Kunde 4711</ram:ID>}, xml)
+      refute_match(/<ram:Reason>/, xml)
 
       v = Validator.new(xml, version: 2)
       errors = v.validate_against_schema
@@ -790,6 +791,7 @@ module Secretariat
 
       assert_match(/<ram:PaymentReference>#{invoice.payment_reference}<\/ram:PaymentReference>/, xml)
       assert_match(%r{<ram:DefinedTradeContact>\s*<ram:PersonName>Max Mustermann</ram:PersonName>\s*</ram:DefinedTradeContact>}, xml)
+      assert_match(/<ram:Reason>/, xml)
     end
 
     def test_invoice_with_quantity_causing_sub_cent_amounts

@@ -173,7 +173,7 @@ module Secretariat
                   xml['udt'].Indicator 'false'
                 end
                 Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
-                xml['ram'].Reason discount_reason
+                xml['ram'].Reason discount_reason if discount_reason
               end
             end
             if version == 1 && discount_amount
@@ -182,7 +182,7 @@ module Secretariat
                   xml['udt'].Indicator 'false'
                 end
                 Helpers.currency_element(xml, 'ram', 'ActualAmount', discount_amount, currency_code, add_currency: version == 1)
-                xml['ram'].Reason discount_reason
+                xml['ram'].Reason discount_reason if discount_reason
               end
             end
           end

@@ -16,11 +16,11 @@ limitations under the License.
 
 module Secretariat
   using ObjectExtensions
-  
+
   TradeParty = Struct.new('TradeParty',
     :id,
     :name, :street1, :street2, :city, :postal_code, :country_id, :vat_id, :global_id, :global_id_scheme_id, :tax_id,
-    :person_name,
+    :person_name, :legal_organization,
     keyword_init: true,
   ) do
     def to_xml(xml, exclude_tax: false, version: 2)
@@ -33,6 +33,13 @@ module Secretariat
         end
       end
       xml['ram'].Name name
+      if legal_organization.present?
+        xml['ram'].SpecifiedLegalOrganization do
+          xml['ram'].ID(schemeID: legal_organization[:scheme_id] || "0002") do
+            xml.text(legal_organization[:id])
+          end
+        end
+      end
       if person_name
         xml['ram'].DefinedTradeContact do
           xml['ram'].PersonName person_name

@@ -481,6 +481,67 @@ module Secretariat
       )
     end
 
+    def make_fr_invoice
+      seller = TradeParty.new(
+        name: 'France inc',
+        legal_organization: { id: '304755032', scheme_id: '0002' },
+        street1: '1 rue de Rivoli',
+        city: 'PARIS',
+        postal_code: '75001',
+        country_id: 'FR',
+        vat_id: 'FR304755032'
+      )
+      buyer = TradeParty.new(
+        name: 'France inc',
+        person_name: 'Max Mustermann',
+        street1: '1 rue de Rivoli',
+        city: 'PARIS',
+        postal_code: '75001',
+        country_id: 'FR',
+        vat_id: 'FR304755032'
+      )
+      line_item = LineItem.new(
+        name: 'Depfu Starter Plan',
+        quantity: 1,
+        unit: :PIECE,
+        gross_amount: BigDecimal('29'),
+        net_amount: BigDecimal('20'),
+        charge_amount: BigDecimal('20'),
+        discount_amount: BigDecimal('9'),
+        discount_reason: 'Rabatt',
+        tax_category: :STANDARDRATE,
+        tax_percent: '19',
+        tax_amount: BigDecimal("3.80"),
+        origin_country_code: 'DE',
+        currency_code: 'EUR'
+      )
+      Invoice.new(
+        id: '12345',
+        issue_date: Date.today,
+        service_period_start: Date.today,
+        service_period_end: Date.today + 30,
+        seller: seller,
+        buyer: buyer,
+        ship_to: false,
+        buyer_reference: "112233",
+        line_items: [line_item],
+        currency_code: 'USD',
+        payment_type: :CREDITCARD,
+        payment_text: 'Kreditkarte',
+        payment_reference: 'INV 123123123',
+        payment_iban: 'DE02120300000000202051',
+        payment_terms_text: "Zahlbar innerhalb von 14 Tagen ohne Abzug",
+        tax_category: :STANDARDRATE,
+        tax_amount: BigDecimal('3.80'),
+        basis_amount: BigDecimal('20'),
+        grand_total_amount: BigDecimal('23.80'),
+        due_amount: 0,
+        paid_amount: BigDecimal('23.80'),
+        payment_due_date: Date.today + 14
+      )
+    end
+
+
     def test_simple_eu_invoice_v2
       begin
         xml = make_eu_invoice.to_xml(version: 2)
@@ -790,6 +851,12 @@ module Secretariat
 
       assert_match(/<ram:PaymentReference>#{invoice.payment_reference}<\/ram:PaymentReference>/, xml)
       assert_match(%r{<ram:DefinedTradeContact>\s*<ram:PersonName>Max Mustermann</ram:PersonName>\s*</ram:DefinedTradeContact>}, xml)
+    end
+
+    def test_fr_invoice
+      invoice = make_fr_invoice
+      xml = invoice.to_xml(version: 2)
+      assert_match(%r{<ram:SpecifiedLegalOrganization>\s*<ram:ID schemeID="0002">304755032</ram:ID>\s*</ram:SpecifiedLegalOrganization>}, xml)
     end
 
     def test_invoice_with_quantity_causing_sub_cent_amounts

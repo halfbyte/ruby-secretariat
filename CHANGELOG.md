@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.9.0
+
+- [FEATURE] Add BT-21 (Subject Code) (this has been added in 3.8.1 but I forgot to add this to the changelog) PR by @valii2334
+- [BUGFIX] Omit Discount Reason if blank. PR by @valii2334
+
 ## 3.8.1
 
 - [FIX] Missing rounding in summed_tax_base_amount. PR by @langalex

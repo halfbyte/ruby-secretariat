@@ -15,7 +15,7 @@ end
 Gem::Specification.new do |s|
   s.name        = 'secretariat'
   s.version     = Secretariat::VERSION
-  s.date        = '2024-11-06'
+  s.date        = '2026-04-22'
   s.summary     = "A ZUGFeRD xml generator"
   s.description = "a tool to help generate and validate ZUGFeRD invoice xml files"
   s.authors     = ["Jan Krutisch"]

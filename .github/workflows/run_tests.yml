@@ -28,7 +28,7 @@ jobs:
     - uses: ConorMacBride/install-package@v1
       with:
         apt: default-jdk
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1

@@ -541,6 +541,105 @@ module Secretariat
       )
     end
 
+    def make_de_invoice_with_float_quantity
+      seller = TradeParty.new(
+        name: 'Depfu inc',
+        street1: 'Quickbornstr. 46',
+        city: 'Hamburg',
+        postal_code: '20253',
+        country_id: 'DE',
+        vat_id: 'DE304755032'
+      )
+      buyer = TradeParty.new(
+        name: 'Depfu inc',
+        person_name: 'Max Mustermann',
+        street1: 'Quickbornstr. 46',
+        city: 'Hamburg',
+        postal_code: '20253',
+        country_id: 'DE',
+        vat_id: 'DE304755032'
+      )
+      line_item1 = LineItem.new(
+        name: 'Depfu Starter Plan',
+        quantity: 78.367,
+        unit: :PIECE,
+        gross_amount: BigDecimal('49.6'),
+        net_amount: BigDecimal('26.6'),
+        charge_amount: BigDecimal('2084.56'),
+        discount_amount: BigDecimal('23'),
+        discount_reason: 'Rabatt',
+        tax_category: :STANDARDRATE,
+        tax_percent: '19',
+        tax_amount: BigDecimal("396.07"),
+        origin_country_code: 'DE',
+        currency_code: 'EUR'
+      )
+      line_item2 = LineItem.new(
+        name: 'Depfu Starter Plan',
+        quantity: 35.207,
+        unit: :PIECE,
+        gross_amount: BigDecimal('46.25'),
+        net_amount: BigDecimal('22.87'),
+        charge_amount: BigDecimal('805.18'),
+        discount_amount: BigDecimal('23.38'),
+        discount_reason: 'Rabatt',
+        tax_category: :STANDARDRATE,
+        tax_percent: '19',
+        tax_amount: BigDecimal("152.98"),
+        origin_country_code: 'DE',
+        currency_code: 'EUR'
+      )
+      Invoice.new(
+        id: '12345',
+        issue_date: Date.today,
+        service_period_start: Date.today,
+        service_period_end: Date.today + 30,
+        seller: seller,
+        buyer: buyer,
+        buyer_reference: "112233",
+        line_items: [line_item1, line_item2],
+        currency_code: 'USD',
+        payment_type: :CREDITCARD,
+        payment_text: 'Kreditkarte',
+        payment_reference: 'INV 123123123',
+        payment_iban: 'DE02120300000000202051',
+        payment_terms_text: "Zahlbar innerhalb von 14 Tagen ohne Abzug",
+        tax_category: :STANDARDRATE,
+        tax_amount: BigDecimal('549.05'),
+        basis_amount: BigDecimal('2889.74'),
+        grand_total_amount: BigDecimal('3438.79'),
+        due_amount: BigDecimal('3438.79'),
+        paid_amount: BigDecimal('0'),
+        payment_due_date: Date.today + 14,
+        subject_code: 'REG' # BT-21
+      )
+    end
+
+    def test_simple_de_invoice_with_decimal_quantity_v2
+      xml = make_de_invoice_with_float_quantity.to_xml(version: 2)
+      v = Validator.new(xml, version: 2)
+      errors = v.validate_against_schema
+      if !errors.empty?
+        puts xml
+        errors.each do |error|
+          puts error
+        end
+      end
+      assert_equal [], errors
+    end
+
+    def test_simple_de_invoice_with_decimal_quantity_v1
+      xml = make_de_invoice_with_float_quantity.to_xml(version: 1)
+      v = Validator.new(xml, version: 1)
+      errors = v.validate_against_schema
+      if !errors.empty?
+        puts xml
+        errors.each do |error|
+          puts error
+        end
+      end
+      assert_equal [], errors
+    end
 
     def test_simple_eu_invoice_v2
       begin

@@ -124,23 +124,24 @@ module Secretariat
     end
 
     def to_xml(xml, line_item_index, version: 2, validate: true)
-      net_price = net_amount && BigDecimal(net_amount)
-      gross_price = gross_amount && BigDecimal(gross_amount)
-      charge_price = charge_amount && BigDecimal(charge_amount)
+      xml_net_price = net_amount && BigDecimal(net_amount)
+      xml_gross_price = gross_amount && BigDecimal(gross_amount)
+      xml_charge_price = charge_amount && BigDecimal(charge_amount)
+      xml_billed_quantity = billed_quantity
 
       self.tax_percent ||= BigDecimal(0)
 
-      if net_price&.zero?
+      if xml_net_price&.zero?
         self.tax_percent = 0
       end
       
-      if net_price&.negative?
+      if xml_net_price&.negative?
         # Zugferd doesn't allow negative amounts at the item level.
         # Instead, a negative quantity is used.
-        self.billed_quantity = -billed_quantity
-        self.gross_amount = gross_price&.abs
-        self.net_amount = net_price&.abs
-        self.charge_amount = charge_price&.abs
+        xml_billed_quantity = -billed_quantity
+        xml_gross_price= xml_gross_price&.abs
+        xml_net_price= xml_net_price&.abs
+        xml_charge_price= xml_charge_price&.abs
       end
 
       if validate && !valid?
@@ -163,7 +164,7 @@ module Secretariat
 
         xml['ram'].send(agreement) do
           xml['ram'].GrossPriceProductTradePrice do
-            Helpers.currency_element(xml, 'ram', 'ChargeAmount', gross_amount, currency_code, add_currency: version == 1, digits: 4)
+            Helpers.currency_element(xml, 'ram', 'ChargeAmount', xml_gross_price, currency_code, add_currency: version == 1, digits: 4)
             if version == 2 && discount_amount
               xml['ram'].BasisQuantity(unitCode: unit_code) do
                 xml.text(Helpers.format(effective_basis_quantity, digits: 4))
@@ -187,7 +188,7 @@ module Secretariat
             end
           end
           xml['ram'].NetPriceProductTradePrice do
-            Helpers.currency_element(xml, 'ram', 'ChargeAmount', net_amount, currency_code, add_currency: version == 1, digits: 4)
+            Helpers.currency_element(xml, 'ram', 'ChargeAmount', xml_net_price, currency_code, add_currency: version == 1, digits: 4)
             if version == 2
               xml['ram'].BasisQuantity(unitCode: unit_code) do
                 xml.text(Helpers.format(effective_basis_quantity, digits: 4))
@@ -200,7 +201,7 @@ module Secretariat
 
         xml['ram'].send(delivery) do
           xml['ram'].BilledQuantity(unitCode: unit_code) do
-            xml.text(Helpers.format(billed_quantity, digits: 4))
+            xml.text(Helpers.format(xml_billed_quantity, digits: 4))
           end
         end
 
@@ -233,7 +234,7 @@ module Secretariat
 
           monetary_summation = by_version(version, 'SpecifiedTradeSettlementMonetarySummation', 'SpecifiedTradeSettlementLineMonetarySummation')
           xml['ram'].send(monetary_summation) do
-            Helpers.currency_element(xml, 'ram', 'LineTotalAmount', (billed_quantity.negative? ? -charge_amount  : charge_amount), currency_code, add_currency: version == 1)
+              Helpers.currency_element(xml, 'ram', 'LineTotalAmount', (xml_billed_quantity.negative? ? -xml_charge_price : xml_charge_price), currency_code, add_currency: version == 1)
           end
         end
 

@@ -884,5 +884,13 @@ module Secretariat
       end
       assert_equal [], errors
     end
+
+    def test_blank_buyer_reference_is_omitted
+      invoice = make_de_invoice
+      invoice.buyer_reference = ''
+      xml = invoice.to_xml(version: 2)
+
+      refute_match(/BuyerReference/, xml)
+    end
   end
 end

@@ -893,18 +893,18 @@ module Secretariat
 
     def test_custom_specification_id
       invoice = make_de_invoice
-      invoice.specification_id = 'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0'
+      invoice.specification_id = SPECIFICATION_IDS[:XRECHNUNG_3_0]
       xml = invoice.to_xml(version: 2)
 
-      assert_match(/<ram:ID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0<\/ram:ID>/, xml)
+      assert_match(/<ram:ID>#{Regexp.escape(SPECIFICATION_IDS[:XRECHNUNG_3_0])}<\/ram:ID>/, xml)
     end
 
     def test_business_process_id
       invoice = make_de_invoice
-      invoice.business_process_id = 'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0'
+      invoice.business_process_id = BUSINESS_PROCESS_IDS[:PEPPOL_BILLING]
       xml = invoice.to_xml(version: 2)
 
-      assert_match(/<ram:BusinessProcessSpecifiedDocumentContextParameter>\s*<ram:ID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0<\/ram:ID>/, xml)
+      assert_match(/<ram:BusinessProcessSpecifiedDocumentContextParameter>\s*<ram:ID>#{Regexp.escape(BUSINESS_PROCESS_IDS[:PEPPOL_BILLING])}<\/ram:ID>/, xml)
       assert_equal [], Validator.new(xml, version: 2).validate_against_schema
     end
   end

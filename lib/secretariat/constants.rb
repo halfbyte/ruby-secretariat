@@ -68,6 +68,11 @@ module Secretariat
     :UNTAXEDSERVICE => 'Not subject to VAT'
   }
 
+  ELECTRONIC_ADDRESS_SCHEME_CODES = {
+    # For other possible values: https://ec.europa.eu/digital-building-blocks/sites/spaces/DIGITAL/pages/467108974/Registry+of+supporting+artefacts+to+implement+EN16931
+    :EMAIL => "EM"
+  }
+
   # For the background of vertical and horizontal tax calculation see https://hilfe.pacemo.de/de-form/articles/3489851-rundungsfehler-bei-rechnungen
   # The idea of introducing an unknown value is that this could be inferred from the given invoice total and line items by probing both variants and selecting the matching one - or reporting a taxation error if neither matches.
   TAX_CALCULATION_METHODS = %i[HORIZONTAL VERTICAL NONE UNKNOWN].freeze

@@ -18,7 +18,7 @@ require 'bigdecimal'
 
 module Secretariat
   using ObjectExtensions
-  
+
   Invoice = Struct.new("Invoice",
     :id,
     :issue_date,
@@ -261,7 +261,7 @@ module Secretariat
             xml['ram'].send(delivery) do
               if version == 2 && ship_to_or_buyer
                 xml['ram'].ShipToTradeParty do
-                  ship_to_or_buyer.to_xml(xml, exclude_tax: true, version: version)
+                  ship_to_or_buyer.to_xml(xml, exclude_tax: true, exclude_email: true, exclude_contact: true, version: version)
                 end
               end
               xml['ram'].ActualDeliverySupplyChainEvent do

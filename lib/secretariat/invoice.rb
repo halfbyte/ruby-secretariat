@@ -20,6 +20,8 @@ module Secretariat
   using ObjectExtensions
   
   Invoice = Struct.new("Invoice",
+    :specification_id,
+    :business_process_id,
     :id,
     :issue_date,
     :service_period_start,
@@ -199,9 +201,14 @@ module Secretariat
           context = by_version(version, 'SpecifiedExchangedDocumentContext', 'ExchangedDocumentContext')
 
           xml['rsm'].send(context) do
+            if business_process_id.present?
+              xml['ram'].BusinessProcessSpecifiedDocumentContextParameter do
+                xml['ram'].ID business_process_id
+              end
+            end
             xml['ram'].GuidelineSpecifiedDocumentContextParameter do
               version_id = by_version(version, 'urn:ferd:CrossIndustryDocument:invoice:1p0:comfort', 'urn:cen.eu:en16931:2017')
-              xml['ram'].ID version_id
+              xml['ram'].ID specification_id || version_id
             end
           end
 

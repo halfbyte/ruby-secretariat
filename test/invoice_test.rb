@@ -884,5 +884,28 @@ module Secretariat
       end
       assert_equal [], errors
     end
+
+    def test_default_specification_id
+      xml = make_de_invoice.to_xml(version: 2)
+
+      assert_match(/<ram:GuidelineSpecifiedDocumentContextParameter>\s*<ram:ID>urn:cen.eu:en16931:2017<\/ram:ID>/, xml)
+    end
+
+    def test_custom_specification_id
+      invoice = make_de_invoice
+      invoice.specification_id = 'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0'
+      xml = invoice.to_xml(version: 2)
+
+      assert_match(/<ram:ID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0<\/ram:ID>/, xml)
+    end
+
+    def test_business_process_id
+      invoice = make_de_invoice
+      invoice.business_process_id = 'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0'
+      xml = invoice.to_xml(version: 2)
+
+      assert_match(/<ram:BusinessProcessSpecifiedDocumentContextParameter>\s*<ram:ID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0<\/ram:ID>/, xml)
+      assert_equal [], Validator.new(xml, version: 2).validate_against_schema
+    end
   end
 end

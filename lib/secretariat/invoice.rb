@@ -95,11 +95,11 @@ module Secretariat
       line_items.each do |line_item|
         if line_item.tax_percent.nil?
           taxes['0'] = Tax.new(tax_percent: BigDecimal(0), tax_category: line_item.tax_category, tax_amount: BigDecimal(0)) if taxes['0'].nil?
-          taxes['0'].base_amount += BigDecimal(line_item.net_amount) * line_item.billed_quantity
+          taxes['0'].base_amount += line_item.signed_charge_amount
         else
           taxes[line_item.tax_percent] = Tax.new(tax_percent: BigDecimal(line_item.tax_percent), tax_category: line_item.tax_category) if taxes[line_item.tax_percent].nil?
           taxes[line_item.tax_percent].tax_amount += BigDecimal(line_item.tax_amount)
-          taxes[line_item.tax_percent].base_amount += BigDecimal(line_item.net_amount) * line_item.billed_quantity
+          taxes[line_item.tax_percent].base_amount += line_item.signed_charge_amount
         end
       end
 
@@ -132,9 +132,10 @@ module Secretariat
         return false
       end
       if tax_calculation_method == :ITEM_BASED
-        line_items_tax_amount = line_items.sum(&:tax_amount)
-        if tax_amount != line_items_tax_amount
-          @errors << "Tax amount #{tax_amount} and summed up item tax amounts #{line_items_tax_amount} deviate"
+        line_items_tax_amount = line_items.sum(BigDecimal(0)) { |item| BigDecimal(item.tax_amount) }
+        if tax != line_items_tax_amount
+          @errors << "Tax amount #{tax.to_s('F')} and summed up item tax amounts #{line_items_tax_amount.to_s('F')} deviate"
+          return false
         end
       elsif tax_calculation_method != :NONE
         taxes.each do |tax|

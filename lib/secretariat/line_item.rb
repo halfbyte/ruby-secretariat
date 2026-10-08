@@ -18,6 +18,12 @@ require 'bigdecimal'
 module Secretariat
 
 
+  # A line's VAT may differ from net x rate by rounding: when the gross price is
+  # fixed and net and VAT are derived from it, the VAT can be a cent off the
+  # recalculated value. EN 16931 has no line VAT amount, so this only bounds the
+  # amounts the line contributes to the VAT breakdown.
+  LINE_TAX_ROUNDING_TOLERANCE = BigDecimal('0.01')
+
   LineItem = Struct.new('LineItem',
     :name,
     :billed_quantity,
@@ -93,12 +99,19 @@ module Secretariat
         calculated_tax = charge_price * BigDecimal(tax_percent) / BigDecimal(100)
         calculated_tax = calculated_tax.round(2)
         calculated_tax = -calculated_tax if billed_quantity.negative?
-        if calculated_tax != tax
+        if (calculated_tax - tax).abs > LINE_TAX_ROUNDING_TOLERANCE
           @errors << "Tax and calculated tax deviate: #{tax} / #{calculated_tax}"
           return false
         end
       end
       return true
+    end
+
+    # The line total (BT-131) as it adds up to the VAT base: negative for a
+    # negative quantity, since the amounts themselves are kept positive.
+    def signed_charge_amount
+      charge = BigDecimal(charge_amount)
+      billed_quantity.negative? ? -charge : charge
     end
 
     def unit_code

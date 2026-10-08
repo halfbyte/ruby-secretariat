@@ -861,6 +861,106 @@ module Secretariat
       assert_match(%r{<ram:SpecifiedLegalOrganization>\s*<ram:ID schemeID="0002">304755032</ram:ID>\s*</ram:SpecifiedLegalOrganization>}, xml)
     end
 
+    # A gross-leading row: the gross price is fixed, net and VAT are derived from
+    # it, so the row's VAT (27.21) is one cent below net x rate (27.2153 -> 27.22).
+    def make_gross_leading_invoice(line_tax:, invoice_tax:)
+      line_item = LineItem.new(
+        name: '8 x Overnight stay',
+        billed_quantity: BigDecimal('8'),
+        unit: :PIECE,
+        gross_amount: BigDecimal('52'),
+        net_amount: BigDecimal('48.59875'),
+        charge_amount: BigDecimal('388.79'),
+        tax_category: :STANDARDRATE,
+        tax_percent: '7',
+        tax_amount: line_tax,
+        origin_country_code: 'DE',
+        currency_code: 'EUR'
+      )
+      invoice = make_de_invoice
+      invoice.currency_code = 'EUR'
+      invoice.tax_calculation_method = :ITEM_BASED
+      invoice.line_items = [line_item]
+      invoice.basis_amount = '388.79'
+      invoice.tax_amount = invoice_tax
+      invoice.grand_total_amount = (BigDecimal('388.79') + BigDecimal(invoice_tax)).to_s('F')
+      invoice.due_amount = invoice.grand_total_amount
+      invoice.paid_amount = 0
+      invoice
+    end
+
+    def test_item_based_invoice_keeps_line_vat_rounded_from_the_gross_price
+      invoice = make_gross_leading_invoice(line_tax: BigDecimal('27.21'), invoice_tax: '27.21')
+
+      assert invoice.valid?, invoice.errors.inspect
+      xml = invoice.to_xml(version: 2)
+      assert_match(%r{<ram:CalculatedAmount>27.21</ram:CalculatedAmount>}, xml)
+      assert_match(%r{<ram:GrandTotalAmount>416.00</ram:GrandTotalAmount>}, xml)
+    end
+
+    def test_line_vat_more_than_a_cent_off_is_still_rejected
+      line_item = make_gross_leading_invoice(line_tax: BigDecimal('27.20'), invoice_tax: '27.20').line_items.first
+
+      refute line_item.valid?
+      assert_equal ["Tax and calculated tax deviate: 0.272e2 / 0.2722e2"], line_item.errors
+    end
+
+    def test_item_based_totals_passed_as_strings_leave_no_errors
+      invoice = make_gross_leading_invoice(line_tax: BigDecimal('27.21'), invoice_tax: '27.21')
+
+      assert invoice.valid?
+      assert_equal [], invoice.errors
+    end
+
+    def test_item_based_invoice_rejects_a_tax_total_that_differs_from_its_lines
+      invoice = make_de_invoice
+      invoice.tax_calculation_method = :ITEM_BASED
+      untaxed = invoice.line_items.first
+      untaxed.tax_category = :UNTAXEDSERVICE
+      untaxed.tax_percent = nil
+      untaxed.tax_amount = BigDecimal('3.80')
+      invoice.tax_amount = BigDecimal('0')
+      invoice.grand_total_amount = BigDecimal('20')
+
+      refute invoice.valid?
+      assert_equal ["Tax amount 0.0 and summed up item tax amounts 3.8 deviate"], invoice.errors
+    end
+
+    # Two days, 120 participants, 5,000.00 net per day: the unit price is stored
+    # with four decimals (41.6667), so 41.6667 x 120 = 5000.004 while each line
+    # total is 5000.00. Summing unit price x quantity drifts to 10000.008 and
+    # rounds to 10000.01, a cent off the lines it is made of.
+    def test_vat_base_is_the_sum_of_the_line_totals
+      line_items = %w[Day1 Day2].map do |day|
+        LineItem.new(
+          name: "Conference package #{day}",
+          billed_quantity: BigDecimal('120'),
+          unit: :PIECE,
+          gross_amount: BigDecimal('41.6667'),
+          net_amount: BigDecimal('41.6667'),
+          charge_amount: BigDecimal('5000.00'),
+          tax_category: :STANDARDRATE,
+          tax_percent: '19',
+          tax_amount: BigDecimal('950.00'),
+          origin_country_code: 'DE',
+          currency_code: 'EUR'
+        )
+      end
+      invoice = make_de_invoice
+      invoice.currency_code = 'EUR'
+      invoice.tax_calculation_method = :ITEM_BASED
+      invoice.line_items = line_items
+      invoice.basis_amount = '10000.00'
+      invoice.tax_amount = '1900.00'
+      invoice.grand_total_amount = '11900.00'
+      invoice.due_amount = '11900.00'
+      invoice.paid_amount = 0
+
+      assert invoice.valid?, invoice.errors.inspect
+      xml = invoice.to_xml(version: 2)
+      assert_match(%r{<ram:BasisAmount>10000.00</ram:BasisAmount>}, xml)
+    end
+
     def test_invoice_with_quantity_causing_sub_cent_amounts
       errors = []
 

@@ -861,6 +861,50 @@ module Secretariat
       assert_match(%r{<ram:SpecifiedLegalOrganization>\s*<ram:ID schemeID="0002">304755032</ram:ID>\s*</ram:SpecifiedLegalOrganization>}, xml)
     end
 
+    def test_type_code_defaults_to_commercial_invoice
+      xml = make_de_invoice.to_xml(version: 2)
+      assert_match(%r{<ram:TypeCode>380</ram:TypeCode>}, xml)
+    end
+
+    def test_credit_note_with_preceding_invoice
+      invoice = make_eu_invoice
+      invoice.type_code = '381'
+      invoice.preceding_invoice_id = 'R-2026-0042'
+      invoice.preceding_invoice_issue_date = Date.new(2026, 10, 1)
+      xml = invoice.to_xml(version: 2)
+
+      assert_match(%r{<ram:TypeCode>381</ram:TypeCode>}, xml)
+      assert_match(%r{</ram:SpecifiedTradeSettlementHeaderMonetarySummation>\s*<ram:InvoiceReferencedDocument>\s*<ram:IssuerAssignedID>R-2026-0042</ram:IssuerAssignedID>\s*<ram:FormattedIssueDateTime>\s*<qdt:DateTimeString format="102">20261001</qdt:DateTimeString>\s*</ram:FormattedIssueDateTime>\s*</ram:InvoiceReferencedDocument>}, xml)
+      assert_equal [], Validator.new(xml, version: 2).validate_against_schematron
+    end
+
+    def test_preceding_invoice_without_issue_date
+      invoice = make_de_invoice
+      invoice.preceding_invoice_id = 'R-2026-0042'
+      xml = invoice.to_xml(version: 2)
+
+      assert_match(%r{<ram:InvoiceReferencedDocument>\s*<ram:IssuerAssignedID>R-2026-0042</ram:IssuerAssignedID>\s*</ram:InvoiceReferencedDocument>}, xml)
+    end
+
+    def test_no_preceding_invoice_by_default
+      xml = make_de_invoice.to_xml(version: 2)
+      refute_match(/InvoiceReferencedDocument/, xml)
+    end
+
+    def test_legal_organization_without_scheme
+      invoice = make_fr_invoice
+      invoice.seller.legal_organization = { id: 'HRB 12345', scheme_id: nil }
+      xml = invoice.to_xml(version: 2)
+      assert_match(%r{<ram:SpecifiedLegalOrganization>\s*<ram:ID>HRB 12345</ram:ID>\s*</ram:SpecifiedLegalOrganization>}, xml)
+    end
+
+    def test_legal_organization_scheme_defaults_to_sirene
+      invoice = make_fr_invoice
+      invoice.seller.legal_organization = { id: '304755032' }
+      xml = invoice.to_xml(version: 2)
+      assert_match(%r{<ram:ID schemeID="0002">304755032</ram:ID>}, xml)
+    end
+
     def test_invoice_with_quantity_causing_sub_cent_amounts
       errors = []
 

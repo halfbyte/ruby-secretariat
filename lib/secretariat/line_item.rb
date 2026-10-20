@@ -154,8 +154,11 @@ module Secretariat
         if (version == 2)
           xml['ram'].SpecifiedTradeProduct do
             xml['ram'].Name name
-            xml['ram'].OriginTradeCountry do
-              xml['ram'].ID origin_country_code
+            # BT-159 is optional; it describes where goods were made, which a service doesn't have.
+            unless origin_country_code.to_s.empty?
+              xml['ram'].OriginTradeCountry do
+                xml['ram'].ID origin_country_code
+              end
             end
           end
         end

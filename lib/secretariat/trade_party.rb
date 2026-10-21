@@ -36,7 +36,8 @@ module Secretariat
       xml['ram'].Name name
       if legal_organization.present?
         xml['ram'].SpecifiedLegalOrganization do
-          xml['ram'].ID(schemeID: legal_organization[:scheme_id] || "0002") do
+          scheme_id = legal_organization.fetch(:scheme_id, "0002") # scheme_id: nil omits the scheme (BT-30-1)
+          xml['ram'].ID({ schemeID: scheme_id }.compact) do
             xml.text(legal_organization[:id])
           end
         end

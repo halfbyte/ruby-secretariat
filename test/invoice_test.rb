@@ -12,7 +12,6 @@ module Secretariat
         postal_code: '20253',
         country_id: 'DE',
         vat_id: 'DE304755032',
-        email: 'seller@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Alex B.',
           department: 'Invoicing',
@@ -28,7 +27,6 @@ module Secretariat
         postal_code: '20253',
         country_id: 'SE',
         vat_id: 'SE304755032',
-        email: 'buyer@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Bob C.',
           department: 'Purchasing',
@@ -195,7 +193,6 @@ module Secretariat
         city: 'Hamburg',
         postal_code: '20253',
         country_id: 'DE',
-        email: 'seller@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Alex B.',
           department: 'Invoicing',
@@ -209,7 +206,6 @@ module Secretariat
         city: 'Hamburg',
         postal_code: 'NH-2003',
         country_id: 'US',
-        email: 'buyer@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Bob C.',
           department: 'Purchasing',
@@ -260,7 +256,6 @@ module Secretariat
         postal_code: '20253',
         country_id: 'DE',
         vat_id: 'DE304755032',
-        email: 'seller@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Alex B.',
           department: 'Invoicing',
@@ -275,7 +270,6 @@ module Secretariat
         postal_code: '20253',
         country_id: 'SE',
         vat_id: 'SE304755032',
-        email: 'buyer@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Bob C.',
           department: 'Purchasing',
@@ -332,7 +326,6 @@ module Secretariat
         postal_code: '20253',
         country_id: 'DE',
         vat_id: 'DE304755032',
-        email: 'seller@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Alex B.',
           department: 'Invoicing',
@@ -348,7 +341,6 @@ module Secretariat
         postal_code: '20253',
         country_id: 'DE',
         vat_id: 'DE304755032',
-        email: 'buyer@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Bob C.',
           department: 'Purchasing',
@@ -405,7 +397,6 @@ module Secretariat
         postal_code: '20253',
         country_id: 'DE',
         vat_id: 'DE304755032',
-        email: 'seller@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Alex B.',
           department: 'Invoicing',
@@ -420,7 +411,6 @@ module Secretariat
         postal_code: '20253',
         country_id: 'DE',
         vat_id: 'DE304755032',
-        email: 'buyer@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Bob C.',
           department: 'Purchasing',
@@ -500,7 +490,6 @@ module Secretariat
         postal_code: '20253',
         country_id: 'DE',
         vat_id: 'DE304755032',
-        email: 'seller@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Alex B.',
           department: 'Invoicing',
@@ -515,7 +504,6 @@ module Secretariat
         postal_code: '20253',
         country_id: 'DE',
         vat_id: 'DE304755032',
-        email: 'buyer@example.com',
         trade_contact: TradeContact.new(
           person_name: 'Bob C.',
           department: 'Purchasing',
@@ -807,8 +795,7 @@ module Secretariat
       invoice.tax_amount = BigDecimal("0.19")
       invoice.grand_total_amount = BigDecimal("1.2")
       invoice.to_xml(version: 2)
-      # TODO: Fix this!
-      # assert_valid_schematron(xml)
+      assert_valid_schematron(xml)
     end
 
     def test_blank_buyer_reference_is_omitted

@@ -860,6 +860,45 @@ module Secretariat
       xml = invoice.to_xml(version: 2)
       assert_match(%r{<ram:SpecifiedLegalOrganization>\s*<ram:ID schemeID="0002">304755032</ram:ID>\s*</ram:SpecifiedLegalOrganization>}, xml)
     end
+    
+    def test_electronic_addresses_of_seller_and_buyer
+      invoice = make_eu_invoice
+      invoice.seller.electronic_address = 'invoices@depfu.com'
+      invoice.seller.electronic_address_scheme_id = 'EM'
+      invoice.buyer.electronic_address = 'accounting@example.se'
+      invoice.buyer.electronic_address_scheme_id = 'EM'
+      xml = invoice.to_xml(version: 2)
+
+      assert_match(%r{</ram:PostalTradeAddress>\s*<ram:URIUniversalCommunication>\s*<ram:URIID schemeID="EM">invoices@depfu.com</ram:URIID>\s*</ram:URIUniversalCommunication>\s*<ram:SpecifiedTaxRegistration>}, xml)
+      assert_equal 1, xml.scan('accounting@example.se').size # not repeated in the ShipToTradeParty
+      assert_equal [], Validator.new(xml, version: 2).validate_against_schematron
+    end
+
+    def test_electronic_address_without_scheme_is_omitted
+      invoice = make_de_invoice
+      invoice.seller.electronic_address = 'invoices@depfu.com'
+      xml = invoice.to_xml(version: 2)
+      refute_match(/<ram:URIUniversalCommunication>/, xml)
+    end
+
+    def test_no_electronic_address_by_default
+      xml = make_de_invoice.to_xml(version: 2)
+      refute_match(/<ram:URIUniversalCommunication>/, xml)
+    end
+    
+    def test_origin_country_is_written_when_given
+      xml = make_de_invoice.to_xml(version: 2)
+      assert_match(%r{<ram:OriginTradeCountry>\s*<ram:ID>DE</ram:ID>\s*</ram:OriginTradeCountry>}, xml)
+    end
+
+    def test_line_without_origin_country
+      invoice = make_eu_invoice
+      invoice.line_items.each { |line_item| line_item.origin_country_code = nil }
+      xml = invoice.to_xml(version: 2)
+
+      refute_match(/OriginTradeCountry/, xml)
+      assert_equal [], Validator.new(xml, version: 2).validate_against_schematron
+    end
 
     def test_invoice_with_quantity_causing_sub_cent_amounts
       errors = []
@@ -883,6 +922,14 @@ module Secretariat
         pp e.errors
       end
       assert_equal [], errors
+    end
+
+    def test_blank_buyer_reference_is_omitted
+      invoice = make_de_invoice
+      invoice.buyer_reference = ''
+      xml = invoice.to_xml(version: 2)
+
+      refute_match(/BuyerReference/, xml)
     end
   end
 end

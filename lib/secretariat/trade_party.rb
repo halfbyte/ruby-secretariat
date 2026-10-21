@@ -21,6 +21,7 @@ module Secretariat
     :id,
     :name, :street1, :street2, :city, :postal_code, :country_id, :vat_id, :global_id, :global_id_scheme_id, :tax_id,
     :person_name, :phone, :email, :legal_organization,
+    :electronic_address, :electronic_address_scheme_id,
     keyword_init: true,
   ) do
     def to_xml(xml, exclude_tax: false, version: 2)
@@ -55,6 +56,15 @@ module Secretariat
         end
         xml['ram'].CityName city
         xml['ram'].CountryID country_id
+      end
+      # EN16931 BT-34 / BT-49, the scheme (BT-34-1 / BT-49-1) is mandatory (BR-62, BR-63).
+      # Like the ID, it is left out of the ShipToTradeParty, where it is not used.
+      if version == 2 && !exclude_tax && electronic_address.present? && electronic_address_scheme_id.present?
+        xml['ram'].URIUniversalCommunication do
+          xml['ram'].URIID(schemeID: electronic_address_scheme_id) do
+            xml.text(electronic_address)
+          end
+        end
       end
       if !exclude_tax && vat_id.present?
         xml['ram'].SpecifiedTaxRegistration do

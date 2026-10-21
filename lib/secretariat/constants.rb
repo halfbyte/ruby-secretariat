@@ -96,4 +96,12 @@ module Secretariat
     :TON => "TNE",
     :WEEK => "WEE"
   }
+
+  SPECIFICATION_IDS = {
+    :XRECHNUNG_3_0 => "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"
+  }
+
+  BUSINESS_PROCESS_IDS = {
+    :PEPPOL_BILLING => "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0"
+  }
 end

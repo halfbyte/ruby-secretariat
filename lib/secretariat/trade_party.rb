@@ -15,6 +15,9 @@
 module Secretariat
   using ObjectExtensions
 
+  ##
+  # if trade_contact is given, person_name is ignored, person_name is just left
+  # for keeping the API backwards compatible
   TradeParty = Struct.new("TradeParty",
     :id,
     :name, :street1, :street2, :city, :postal_code, :country_id, :vat_id, :global_id, :global_id_scheme_id, :tax_id,
@@ -24,6 +27,10 @@ module Secretariat
     keyword_init: true,
   ) do
 
+
+    ##
+    # To be able to reusable for delivery contacts, including tax data, the
+    # TradeContact fields and the electronic_address fields can be disabled.
     def to_xml(xml, exclude_tax: false, exclude_contact: false, exclude_electronic_address: false, version: 2)
       if id && !exclude_tax
         xml["ram"].ID id # BT-46
@@ -41,11 +48,13 @@ module Secretariat
           end
         end
       end
-      if !exclude_contact && trade_contact.present?
-        trade_contact.to_xml(xml, version: version)
-      elsif person_name.present?
-        xml['ram'].DefinedTradeContact do
-          xml['ram'].PersonName person_name
+      if !exclude_contact
+        if trade_contact.present?
+          trade_contact.to_xml(xml, version: version)
+        elsif person_name.present?
+          xml['ram'].DefinedTradeContact do
+            xml['ram'].PersonName person_name
+          end
         end
       end
       xml["ram"].PostalTradeAddress do

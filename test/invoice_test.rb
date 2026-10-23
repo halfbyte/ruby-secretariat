@@ -794,7 +794,7 @@ module Secretariat
       invoice.basis_amount = BigDecimal("1.01") # 1.012 rounded
       invoice.tax_amount = BigDecimal("0.19")
       invoice.grand_total_amount = BigDecimal("1.2")
-      invoice.to_xml(version: 2)
+      xml = invoice.to_xml(version: 2)
       assert_valid_schematron(xml)
     end
 

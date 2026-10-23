@@ -7,16 +7,18 @@ module Secretariat
       def make_basic_invoice
         ::Secretariat::Invoice.new(
           id: "471102",
-          issue_date: Date.new(2020, 3, 5),
-          currency_code: "EUR",
+          issue_date: Date.new(2020, 0o3, 0o5),
+          service_period_start: Date.today,
+          service_period_end: Date.today + 30,
+          currency_code: "USD",
           payment_type: :CREDITCARD,
           payment_text: "Kreditkarte",
-          tax_amount: BigDecimal("37.62", 10),
-          basis_amount: BigDecimal(198),
-          grand_total_amount: BigDecimal("235.62", 10),
-          due_amount: BigDecimal("235.62", 10),
-          paid_amount: 0,
-          payment_due_date: Date.new(2020, 4, 4),
+          tax_amount: 0,
+          basis_amount: BigDecimal(29),
+          grand_total_amount: BigDecimal(29),
+          due_amount: 0,
+          paid_amount: 29,
+          payment_due_date: Date.today + 14,
           notes: [
             "Rechnung gemäß Bestellung vom 01.03.2020.",
             "Lieferant GmbH
@@ -44,7 +46,6 @@ Trennblätter A4
             net_amount: 9.90,
             tax_category: "S",
             tax_percent: 19.00,
-            tax_amount: 37.62,
             charge_amount: 198.00,
             global_id: "4012345001235",
             global_id_scheme_id: "0160"

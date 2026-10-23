@@ -68,7 +68,7 @@ module Secretariat
 
   ELECTRONIC_ADDRESS_SCHEME_CODES = {
     # For other possible values: https://ec.europa.eu/digital-building-blocks/sites/spaces/DIGITAL/pages/467108974/Registry+of+supporting+artefacts+to+implement+EN16931
-    :EMAIL => "EM"
+    EMAIL: "EM"
   }
 
   # For the background of vertical and horizontal tax calculation see https://hilfe.pacemo.de/de-form/articles/3489851-rundungsfehler-bei-rechnungen

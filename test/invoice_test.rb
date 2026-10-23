@@ -6,32 +6,32 @@ module Secretariat
   class InvoiceTest < Test
     def make_eu_invoice(tax_category: :REVERSECHARGE, ship_to: nil)
       seller = TradeParty.new(
-        name: 'Depfu inc',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'DE',
-        vat_id: 'DE304755032',
+        name: "Depfu inc",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "DE",
+        vat_id: "DE304755032",
         trade_contact: TradeContact.new(
-          person_name: 'Alex B.',
-          department: 'Invoicing',
-          telephone: '+49012345678',
-          email: 'invoicing@example.com'
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
         )
       )
       buyer = TradeParty.new(
-        id: 'Kunde 4711',
-        name: 'Depfu inc',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'SE',
-        vat_id: 'SE304755032',
+        id: "Kunde 4711",
+        name: "Depfu inc",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "SE",
+        vat_id: "SE304755032",
         trade_contact: TradeContact.new(
-          person_name: 'Bob C.',
-          department: 'Purchasing',
-          telephone: '+49012345678',
-          email: 'purchasing@example.com'
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
         )
       )
       line_item = LineItem.new(
@@ -188,29 +188,29 @@ module Secretariat
 
     def make_foreign_invoice(tax_category: :TAXEXEMPT)
       seller = TradeParty.new(
-        name: 'Depfu inc',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'DE',
+        name: "Depfu inc",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "DE",
         trade_contact: TradeContact.new(
-          person_name: 'Alex B.',
-          department: 'Invoicing',
-          telephone: '+49012345678',
-          email: 'invoicing@example.com'
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
         )
       )
       buyer = TradeParty.new(
-        name: 'Another Corp Inc.',
-        street1: 'Example Street 12',
-        city: 'Hamburg',
-        postal_code: 'NH-2003',
-        country_id: 'US',
+        name: "Another Corp Inc.",
+        street1: "Example Street 12",
+        city: "Hamburg",
+        postal_code: "NH-2003",
+        country_id: "US",
         trade_contact: TradeContact.new(
-          person_name: 'Bob C.',
-          department: 'Purchasing',
-          telephone: '+49012345678',
-          email: 'purchasing@example.com'
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
         )
       )
       line_item = LineItem.new(
@@ -250,31 +250,31 @@ module Secretariat
 
     def make_eu_invoice_with_attachment
       seller = TradeParty.new(
-        name: 'Depfu inc',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'DE',
-        vat_id: 'DE304755032',
+        name: "Depfu inc",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "DE",
+        vat_id: "DE304755032",
         trade_contact: TradeContact.new(
-          person_name: 'Alex B.',
-          department: 'Invoicing',
-          telephone: '+49012345678',
-          email: 'invoicing@example.com'
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
         )
       )
       buyer = TradeParty.new(
-        name: 'Depfu inc',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'SE',
-        vat_id: 'SE304755032',
+        name: "Depfu inc",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "SE",
+        vat_id: "SE304755032",
         trade_contact: TradeContact.new(
-          person_name: 'Bob C.',
-          department: 'Purchasing',
-          telephone: '+49012345678',
-          email: 'purchasing@example.com'
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
         )
       )
       line_item = LineItem.new(
@@ -320,32 +320,32 @@ module Secretariat
 
     def make_de_invoice
       seller = TradeParty.new(
-        name: 'Depfu inc',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'DE',
-        vat_id: 'DE304755032',
+        name: "Depfu inc",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "DE",
+        vat_id: "DE304755032",
         trade_contact: TradeContact.new(
-          person_name: 'Alex B.',
-          department: 'Invoicing',
-          telephone: '+49012345678',
-          email: 'invoicing@example.com'
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
         )
       )
       buyer = TradeParty.new(
-        name: 'Depfu inc',
-        person_name: 'Max Mustermann',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'DE',
-        vat_id: 'DE304755032',
+        name: "Depfu inc",
+        person_name: "Max Mustermann",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "DE",
+        vat_id: "DE304755032",
         trade_contact: TradeContact.new(
-          person_name: 'Bob C.',
-          department: 'Purchasing',
-          telephone: '+49012345678',
-          email: 'purchasing@example.com'
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
         )
       )
       line_item = LineItem.new(
@@ -391,31 +391,31 @@ module Secretariat
 
     def make_de_invoice_with_multiple_tax_rates
       seller = TradeParty.new(
-        name: 'Depfu inc',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'DE',
-        vat_id: 'DE304755032',
+        name: "Depfu inc",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "DE",
+        vat_id: "DE304755032",
         trade_contact: TradeContact.new(
-          person_name: 'Alex B.',
-          department: 'Invoicing',
-          telephone: '+49012345678',
-          email: 'invoicing@example.com'
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
         )
       )
       buyer = TradeParty.new(
-        name: 'Depfu inc',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'DE',
-        vat_id: 'DE304755032',
+        name: "Depfu inc",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "DE",
+        vat_id: "DE304755032",
         trade_contact: TradeContact.new(
-          person_name: 'Bob C.',
-          department: 'Purchasing',
-          telephone: '+49012345678',
-          email: 'purchasing@example.com'
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
         )
       )
       line_item = LineItem.new(
@@ -484,31 +484,31 @@ module Secretariat
 
     def make_negative_de_invoice
       seller = TradeParty.new(
-        name: 'Depfu inc',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'DE',
-        vat_id: 'DE304755032',
+        name: "Depfu inc",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "DE",
+        vat_id: "DE304755032",
         trade_contact: TradeContact.new(
-          person_name: 'Alex B.',
-          department: 'Invoicing',
-          telephone: '+49012345678',
-          email: 'invoicing@example.com'
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
         )
       )
       buyer = TradeParty.new(
-        name: 'Depfu inc',
-        street1: 'Quickbornstr. 46',
-        city: 'Hamburg',
-        postal_code: '20253',
-        country_id: 'DE',
-        vat_id: 'DE304755032',
+        name: "Depfu inc",
+        street1: "Quickbornstr. 46",
+        city: "Hamburg",
+        postal_code: "20253",
+        country_id: "DE",
+        vat_id: "DE304755032",
         trade_contact: TradeContact.new(
-          person_name: 'Bob C.',
-          department: 'Purchasing',
-          telephone: '+49012345678',
-          email: 'purchasing@example.com'
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
         )
       )
       line_item = LineItem.new(

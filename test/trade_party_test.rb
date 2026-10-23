@@ -1,9 +1,9 @@
-require 'test_helper'
-require 'nokogiri'
+require "test_helper"
+require "nokogiri"
 
 module Secretariat
   class TradePartyTest < Minitest::Test
-    NAMESPACES = { 'xmlns:ram' => 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100' }
+    NAMESPACES = {"xmlns:ram" => "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"}
 
     def make_trade_party(**extra)
       attrs = {
@@ -14,7 +14,7 @@ module Secretariat
         postal_code: "20000",
         country_id: "DE",
         vat_id: "DE304755032",
-        person_name: "Max Mustermann",
+        person_name: "Max Mustermann"
       }.merge(extra)
       TradeParty.new(
         **attrs
@@ -52,7 +52,7 @@ module Secretariat
             <ram:CountryID>DE</ram:CountryID>
           </ram:PostalTradeAddress>
           <ram:URIUniversalCommunication>
-            <ram:URIID schemeID=\"EM\">mm@example.com</ram:URIID>
+            <ram:URIID schemeID="EM">mm@example.com</ram:URIID>
           </ram:URIUniversalCommunication>
           <ram:SpecifiedTaxRegistration>
             <ram:ID schemeID="VA">DE304755032</ram:ID>

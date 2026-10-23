@@ -24,10 +24,7 @@ module Secretariat
     :person_name, :legal_organization,
     :electronic_address, :electronic_address_scheme_id,
     :trade_contact,
-    keyword_init: true,
-  ) do
-
-
+    keyword_init: true) do
     ##
     # To be able to reusable for delivery contacts, including tax data, the
     # TradeContact fields and the electronic_address fields can be disabled.
@@ -52,8 +49,8 @@ module Secretariat
         if trade_contact.present?
           trade_contact.to_xml(xml, version: version)
         elsif person_name.present?
-          xml['ram'].DefinedTradeContact do
-            xml['ram'].PersonName person_name
+          xml["ram"].DefinedTradeContact do
+            xml["ram"].PersonName person_name
           end
         end
       end
@@ -69,8 +66,8 @@ module Secretariat
       # EN16931 BT-34 / BT-49, the scheme (BT-34-1 / BT-49-1) is mandatory (BR-62, BR-63).
       # Like the ID, it is left out of the ShipToTradeParty, where it is not used.
       if version == 2 && !exclude_electronic_address && electronic_address.present? && electronic_address_scheme_id.present?
-        xml['ram'].URIUniversalCommunication do
-          xml['ram'].URIID(schemeID: electronic_address_scheme_id) do
+        xml["ram"].URIUniversalCommunication do
+          xml["ram"].URIID(schemeID: electronic_address_scheme_id) do
             xml.text(electronic_address)
           end
         end

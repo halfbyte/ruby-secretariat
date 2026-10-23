@@ -16,6 +16,8 @@
 require "mime/types"
 
 module Secretariat
+  using ObjectExtensions
+
   Attachment = Struct.new("Attachment",
     :filename,
     :type_code,

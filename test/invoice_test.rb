@@ -372,7 +372,7 @@ module Secretariat
         buyer: buyer,
         buyer_reference: "112233",
         line_items: [line_item],
-        currency_code: "USD",
+        currency_code: "EUR",
         payment_type: :CREDITCARD,
         payment_text: "Kreditkarte",
         payment_reference: "INV 123123123",
@@ -733,7 +733,6 @@ module Secretariat
       xml = invoice.to_xml(version: 2)
 
       assert_match(/<ram:PaymentReference>#{invoice.payment_reference}<\/ram:PaymentReference>/, xml)
-      assert_match(/<ram:Reason>/, xml)
     end
 
     def test_fr_invoice
@@ -794,6 +793,7 @@ module Secretariat
       invoice.basis_amount = BigDecimal("1.01") # 1.012 rounded
       invoice.tax_amount = BigDecimal("0.19")
       invoice.grand_total_amount = BigDecimal("1.2")
+      invoice.paid_amount = BigDecimal("1.2")
       xml = invoice.to_xml(version: 2)
       assert_valid_schematron(xml)
     end

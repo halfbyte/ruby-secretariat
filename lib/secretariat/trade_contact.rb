@@ -1,4 +1,6 @@
 module Secretariat
+  using ObjectExtensions
+
   TradeContact = Struct.new("TradeContact", :person_name, :department, :telephone, :email, keyword_init: true) do
     def to_xml(xml, version: 2)
       xml["ram"].DefinedTradeContact do

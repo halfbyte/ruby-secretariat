@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative "secretariat/version"
 require_relative "secretariat/object_extensions"
+require_relative "secretariat/version"
 require_relative "secretariat/constants"
 require_relative "secretariat/helpers"
 require_relative "secretariat/versioner"

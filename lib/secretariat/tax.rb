@@ -15,8 +15,6 @@
 require "bigdecimal"
 
 module Secretariat
-  using ObjectExtensions
-
   Tax = Struct.new("Tax",
     :tax_percent,
     :tax_amount,

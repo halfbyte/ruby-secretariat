@@ -61,7 +61,6 @@ module Secretariat
 
     def to_xml(xml, attachment_index, version: 2, validate: true)
       if validate && !valid?
-        pp errors
         raise ValidationError.new("Attachment #{attachment_index} is invalid", errors)
       end
 

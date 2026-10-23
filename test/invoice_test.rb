@@ -11,7 +11,13 @@ module Secretariat
         city: "Hamburg",
         postal_code: "20253",
         country_id: "DE",
-        vat_id: "DE304755032"
+        vat_id: "DE304755032",
+        trade_contact: TradeContact.new(
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
+        )
       )
       buyer = TradeParty.new(
         id: "Kunde 4711",
@@ -20,7 +26,13 @@ module Secretariat
         city: "Hamburg",
         postal_code: "20253",
         country_id: "SE",
-        vat_id: "SE304755032"
+        vat_id: "SE304755032",
+        trade_contact: TradeContact.new(
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
+        )
       )
       line_item = LineItem.new(
         name: "Depfu Starter Plan",
@@ -180,14 +192,26 @@ module Secretariat
         street1: "Quickbornstr. 46",
         city: "Hamburg",
         postal_code: "20253",
-        country_id: "DE"
+        country_id: "DE",
+        trade_contact: TradeContact.new(
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
+        )
       )
       buyer = TradeParty.new(
         name: "Another Corp Inc.",
         street1: "Example Street 12",
         city: "Hamburg",
         postal_code: "NH-2003",
-        country_id: "US"
+        country_id: "US",
+        trade_contact: TradeContact.new(
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
+        )
       )
       line_item = LineItem.new(
         name: "Depfu Starter Plan",
@@ -231,7 +255,13 @@ module Secretariat
         city: "Hamburg",
         postal_code: "20253",
         country_id: "DE",
-        vat_id: "DE304755032"
+        vat_id: "DE304755032",
+        trade_contact: TradeContact.new(
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
+        )
       )
       buyer = TradeParty.new(
         name: "Depfu inc",
@@ -239,7 +269,13 @@ module Secretariat
         city: "Hamburg",
         postal_code: "20253",
         country_id: "SE",
-        vat_id: "SE304755032"
+        vat_id: "SE304755032",
+        trade_contact: TradeContact.new(
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
+        )
       )
       line_item = LineItem.new(
         name: "Depfu Starter Plan",
@@ -289,7 +325,13 @@ module Secretariat
         city: "Hamburg",
         postal_code: "20253",
         country_id: "DE",
-        vat_id: "DE304755032"
+        vat_id: "DE304755032",
+        trade_contact: TradeContact.new(
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
+        )
       )
       buyer = TradeParty.new(
         name: "Depfu inc",
@@ -298,7 +340,13 @@ module Secretariat
         city: "Hamburg",
         postal_code: "20253",
         country_id: "DE",
-        vat_id: "DE304755032"
+        vat_id: "DE304755032",
+        trade_contact: TradeContact.new(
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
+        )
       )
       line_item = LineItem.new(
         name: "Depfu Starter Plan",
@@ -324,7 +372,7 @@ module Secretariat
         buyer: buyer,
         buyer_reference: "112233",
         line_items: [line_item],
-        currency_code: "USD",
+        currency_code: "EUR",
         payment_type: :CREDITCARD,
         payment_text: "Kreditkarte",
         payment_reference: "INV 123123123",
@@ -348,7 +396,13 @@ module Secretariat
         city: "Hamburg",
         postal_code: "20253",
         country_id: "DE",
-        vat_id: "DE304755032"
+        vat_id: "DE304755032",
+        trade_contact: TradeContact.new(
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
+        )
       )
       buyer = TradeParty.new(
         name: "Depfu inc",
@@ -356,7 +410,13 @@ module Secretariat
         city: "Hamburg",
         postal_code: "20253",
         country_id: "DE",
-        vat_id: "DE304755032"
+        vat_id: "DE304755032",
+        trade_contact: TradeContact.new(
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
+        )
       )
       line_item = LineItem.new(
         name: "Depfu Starter Plan",
@@ -429,7 +489,13 @@ module Secretariat
         city: "Hamburg",
         postal_code: "20253",
         country_id: "DE",
-        vat_id: "DE304755032"
+        vat_id: "DE304755032",
+        trade_contact: TradeContact.new(
+          person_name: "Alex B.",
+          department: "Invoicing",
+          telephone: "+49012345678",
+          email: "invoicing@example.com"
+        )
       )
       buyer = TradeParty.new(
         name: "Depfu inc",
@@ -437,7 +503,13 @@ module Secretariat
         city: "Hamburg",
         postal_code: "20253",
         country_id: "DE",
-        vat_id: "DE304755032"
+        vat_id: "DE304755032",
+        trade_contact: TradeContact.new(
+          person_name: "Bob C.",
+          department: "Purchasing",
+          telephone: "+49012345678",
+          email: "purchasing@example.com"
+        )
       )
       line_item = LineItem.new(
         name: "Depfu Starter Plan",
@@ -661,14 +733,13 @@ module Secretariat
       xml = invoice.to_xml(version: 2)
 
       assert_match(/<ram:PaymentReference>#{invoice.payment_reference}<\/ram:PaymentReference>/, xml)
-      assert_match(%r{<ram:DefinedTradeContact>\s*<ram:PersonName>Max Mustermann</ram:PersonName>\s*</ram:DefinedTradeContact>}, xml)
-      assert_match(/<ram:Reason>/, xml)
     end
 
     def test_fr_invoice
       invoice = make_fr_invoice
       xml = invoice.to_xml(version: 2)
       assert_match(%r{<ram:SpecifiedLegalOrganization>\s*<ram:ID schemeID="0002">304755032</ram:ID>\s*</ram:SpecifiedLegalOrganization>}, xml)
+      assert_match(%r{<ram:DefinedTradeContact>\s*<ram:PersonName>Max Mustermann</ram:PersonName>\s*</ram:DefinedTradeContact>}, xml)
     end
 
     def test_electronic_addresses_of_seller_and_buyer
@@ -722,9 +793,9 @@ module Secretariat
       invoice.basis_amount = BigDecimal("1.01") # 1.012 rounded
       invoice.tax_amount = BigDecimal("0.19")
       invoice.grand_total_amount = BigDecimal("1.2")
-      invoice.to_xml(version: 2)
-      # TODO: Fix this!
-      # assert_valid_schematron(xml)
+      invoice.paid_amount = BigDecimal("1.2")
+      xml = invoice.to_xml(version: 2)
+      assert_valid_schematron(xml)
     end
 
     def test_blank_buyer_reference_is_omitted

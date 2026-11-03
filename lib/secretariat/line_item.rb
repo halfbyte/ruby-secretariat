@@ -65,7 +65,7 @@ module Secretariat
     def valid?
       @errors = []
       net_price = BigDecimal(net_amount)
-      gross_price = BigDecimal(gross_amount)
+      gross_price = gross_amount && BigDecimal(gross_amount)
       charge_price = BigDecimal(charge_amount)
       tax = BigDecimal(tax_amount)
       unit_price = (net_price * BigDecimal(billed_quantity.abs)).round(2)
@@ -75,6 +75,10 @@ module Secretariat
         return false
       end
       if discount_amount
+        unless gross_price
+          @errors << "Gross amount is required when a discount is provided"
+          return false
+        end
         discount = BigDecimal(discount_amount)
         calculated_net_price = (gross_price - discount).round(2, :down)
         if calculated_net_price != net_price
@@ -159,27 +163,29 @@ module Secretariat
         agreement = by_version(version, "SpecifiedSupplyChainTradeAgreement", "SpecifiedLineTradeAgreement")
 
         xml["ram"].send(agreement) do
-          xml["ram"].GrossPriceProductTradePrice do
-            Helpers.currency_element(xml, "ram", "ChargeAmount", gross_amount, currency_code, add_currency: version == 1, digits: 4)
-            if version == 2 && discount_amount
-              xml["ram"].BasisQuantity(unitCode: unit_code) do
-                xml.text(Helpers.format(effective_basis_quantity, digits: 4))
-              end
-              xml["ram"].AppliedTradeAllowanceCharge do
-                xml["ram"].ChargeIndicator do
-                  xml["udt"].Indicator "false"
+          if gross_amount
+            xml["ram"].GrossPriceProductTradePrice do
+              Helpers.currency_element(xml, "ram", "ChargeAmount", gross_amount, currency_code, add_currency: version == 1, digits: 4)
+              if version == 2 && discount_amount
+                xml["ram"].BasisQuantity(unitCode: unit_code) do
+                  xml.text(Helpers.format(effective_basis_quantity, digits: 4))
                 end
-                Helpers.currency_element(xml, "ram", "ActualAmount", discount_amount, currency_code, add_currency: version == 1)
-                xml["ram"].Reason discount_reason if discount_reason
-              end
-            end
-            if version == 1 && discount_amount
-              xml["ram"].AppliedTradeAllowanceCharge do
-                xml["ram"].ChargeIndicator do
-                  xml["udt"].Indicator "false"
+                xml["ram"].AppliedTradeAllowanceCharge do
+                  xml["ram"].ChargeIndicator do
+                    xml["udt"].Indicator "false"
+                  end
+                  Helpers.currency_element(xml, "ram", "ActualAmount", discount_amount, currency_code, add_currency: version == 1)
+                  xml["ram"].Reason discount_reason if discount_reason
                 end
-                Helpers.currency_element(xml, "ram", "ActualAmount", discount_amount, currency_code, add_currency: version == 1)
-                xml["ram"].Reason discount_reason if discount_reason
+              end
+              if version == 1 && discount_amount
+                xml["ram"].AppliedTradeAllowanceCharge do
+                  xml["ram"].ChargeIndicator do
+                    xml["udt"].Indicator "false"
+                  end
+                  Helpers.currency_element(xml, "ram", "ActualAmount", discount_amount, currency_code, add_currency: version == 1)
+                  xml["ram"].Reason discount_reason if discount_reason
+                end
               end
             end
           end

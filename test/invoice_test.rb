@@ -665,6 +665,44 @@ module Secretariat
       assert_match(/<ram:Reason>/, xml)
     end
 
+    def test_invoice_without_gross_price
+      [1, 2].each do |version|
+        invoice = make_eu_invoice
+        invoice.line_items.first.gross_amount = nil
+        xml = invoice.to_xml(version: version)
+
+        refute_match(/<ram:GrossPriceProductTradePrice>/, xml)
+        assert_match(%r{<ram:NetPriceProductTradePrice>\s*<ram:ChargeAmount[^>]*>29.0000</ram:ChargeAmount>}, xml)
+        assert_valid_schema(xml, version: version)
+        assert_valid_schematron(xml, version: version)
+      end
+    end
+
+    def test_discount_without_gross_price_is_rejected
+      invoice = make_de_invoice
+      invoice.line_items.first.gross_amount = nil
+
+      error = assert_raises(ValidationError) { invoice.to_xml(version: 2) }
+      assert_includes error.errors, "Gross amount is required when a discount is provided"
+    end
+
+    def test_invoice_without_payment_information
+      [1, 2].each do |version|
+        invoice = make_eu_invoice
+        invoice.payment_text = nil
+        xml = invoice.to_xml(version: version)
+
+        refute_match(/<ram:Information/, xml)
+        assert_valid_schema(xml, version: version)
+      end
+    end
+
+    def test_invoice_with_payment_information
+      xml = make_eu_invoice.to_xml(version: 2)
+
+      assert_match(%r{<ram:Information>Kreditkarte</ram:Information>}, xml)
+    end
+
     def test_fr_invoice
       invoice = make_fr_invoice
       xml = invoice.to_xml(version: 2)

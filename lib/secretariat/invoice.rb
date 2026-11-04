@@ -53,7 +53,12 @@ module Secretariat
     :direct_debit_creditor_id, # BT-90
     :direct_debit_iban, # BT-91,
     :subject_code, # BT-21
-    keyword_init: true) do
+    :type_code, # BT-3, defaults to 380 (commercial invoice)
+    :preceding_invoice_id, # BT-25
+    :preceding_invoice_issue_date, # BT-26
+    keyword_init: true
+  ) do
+
     include Versioner
 
     def errors
@@ -213,7 +218,7 @@ module Secretariat
             if version == 1
               xml["ram"].Name "RECHNUNG"
             end
-            xml["ram"].TypeCode "380" # TODO: make configurable
+            xml["ram"].TypeCode type_code || '380'
             xml["ram"].IssueDateTime do
               xml["udt"].DateTimeString(format: "102") do
                 xml.text(issue_date.strftime("%Y%m%d"))
@@ -352,6 +357,18 @@ module Secretariat
                 Helpers.currency_element(xml, "ram", "GrandTotalAmount", grand_total_amount, currency_code, add_currency: version == 1)
                 Helpers.currency_element(xml, "ram", "TotalPrepaidAmount", paid_amount, currency_code, add_currency: version == 1)
                 Helpers.currency_element(xml, "ram", "DuePayableAmount", due_amount, currency_code, add_currency: version == 1)
+              end
+              if version == 2 && preceding_invoice_id.present?
+                xml['ram'].InvoiceReferencedDocument do
+                  xml['ram'].IssuerAssignedID preceding_invoice_id
+                  if preceding_invoice_issue_date
+                    xml['ram'].FormattedIssueDateTime do
+                      xml['qdt'].DateTimeString(format: '102') do
+                        xml.text(preceding_invoice_issue_date.strftime("%Y%m%d"))
+                      end
+                    end
+                  end
+                end
               end
             end
             if version == 1

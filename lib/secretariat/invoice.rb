@@ -326,15 +326,17 @@ module Secretariat
                   end
                 end
               end
-              xml["ram"].SpecifiedTradePaymentTerms do
-                xml["ram"].Description payment_terms_text || "Paid"
-                if payment_due_date
-                  xml["ram"].DueDateDateTime do
-                    Helpers.date_element(xml, payment_due_date)
+              if payment_terms_text || payment_due_date || direct_debit_mandate_reference_id
+                xml["ram"].SpecifiedTradePaymentTerms do
+                  xml["ram"].Description payment_terms_text if payment_terms_text
+                  if payment_due_date
+                    xml["ram"].DueDateDateTime do
+                      Helpers.date_element(xml, payment_due_date)
+                    end
                   end
-                end
-                if direct_debit_mandate_reference_id
-                  xml["ram"].DirectDebitMandateID direct_debit_mandate_reference_id
+                  if direct_debit_mandate_reference_id
+                    xml["ram"].DirectDebitMandateID direct_debit_mandate_reference_id
+                  end
                 end
               end
 

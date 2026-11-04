@@ -819,6 +819,30 @@ module Secretariat
       assert_valid_schematron(xml)
     end
 
+    def test_payment_terms_text_is_written_when_given
+      invoice = make_eu_invoice
+      invoice.payment_terms_text = "Zahlbar innerhalb von 14 Tagen"
+      xml = invoice.to_xml(version: 2)
+
+      assert_match(%r{<ram:SpecifiedTradePaymentTerms>\s*<ram:Description>Zahlbar innerhalb von 14 Tagen</ram:Description>}, xml)
+    end
+
+    def test_no_payment_terms_text_by_default
+      xml = make_eu_invoice.to_xml(version: 2)
+
+      refute_match(%r{<ram:SpecifiedTradePaymentTerms>\s*<ram:Description>}, xml)
+      assert_match(/<ram:DueDateDateTime>/, xml)
+      assert_valid_schematron(xml)
+    end
+
+    def test_no_payment_terms_without_text_due_date_or_mandate
+      invoice = make_eu_invoice
+      invoice.payment_due_date = nil
+      xml = invoice.to_xml(version: 2)
+
+      refute_match(/SpecifiedTradePaymentTerms/, xml)
+    end
+
     def test_invoice_with_quantity_causing_sub_cent_amounts
       invoice = make_de_invoice
       invoice.tax_calculation_method = :ITEM_BASED

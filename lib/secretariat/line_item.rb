@@ -14,6 +14,8 @@
 
 require "bigdecimal"
 module Secretariat
+  using ObjectExtensions
+
   LineItem = Struct.new("LineItem",
     :name,
     :billed_quantity,

@@ -1,0 +1,13 @@
+volumes:
+  bundle:
+
+services:
+  app:
+    build:
+      context: .
+    command: bash -c 'bundle && bundle exec rake'
+    volumes:
+      - .:/usr/src/app
+      - "bundle:/bundle"
+    environment:
+      BUNDLE_PATH: /bundle

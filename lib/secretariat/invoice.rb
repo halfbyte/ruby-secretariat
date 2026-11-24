@@ -328,7 +328,10 @@ module Secretariat
               end
               if payment_terms_text || payment_due_date || direct_debit_mandate_reference_id
                 xml["ram"].SpecifiedTradePaymentTerms do
-                  xml["ram"].Description payment_terms_text if payment_terms_text
+                  # ZUGFeRD 1 demands a description whenever payment terms are written
+                  if payment_terms_text || version == 1
+                    xml["ram"].Description payment_terms_text || "Paid"
+                  end
                   if payment_due_date
                     xml["ram"].DueDateDateTime do
                       Helpers.date_element(xml, payment_due_date)

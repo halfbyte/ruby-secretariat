@@ -4,6 +4,7 @@
 
 Release 4.0.0 will bump ruby requirements so that it will require the oldest still supported ruby version.
 
+- [BUGFIX] Write the payment terms description in version 1 again, which its schema requires (it was omitted since #68 when no payment terms text was given)
 - [CHORE] Bump matrix to include 4.0 and remove unsupported ruby versions
 - [CHORE] Bump requirement to Ruby 3.3 as this is the last currently supported version (3.2 is eol as of 2026-04-01)
 

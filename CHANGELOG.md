@@ -6,6 +6,7 @@ Release 4.0.0 will bump ruby requirements so that it will require the oldest sti
 
 - [CHORE] Bump matrix to include 4.0 and remove unsupported ruby versions
 - [CHORE] Bump requirement to Ruby 3.3 as this is the last currently supported version (3.2 is eol as of 2026-04-01)
+- [FEATURE] Add the seller's trading name (BT-28, `legal_organization[:trading_business_name]`) and additional legal information (BT-33, `TradeParty#description`), version 2 only
 
 ## 3.9.0
 

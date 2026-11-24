@@ -780,6 +780,35 @@ module Secretariat
       assert_match(%r{<ram:DefinedTradeContact>\s*<ram:PersonName>Max Mustermann</ram:PersonName>\s*</ram:DefinedTradeContact>}, xml)
     end
 
+    def test_seller_trading_name_and_additional_legal_information
+      invoice = make_de_invoice
+      invoice.seller.description = "GmbH, Sitz Musterstadt, Amtsgericht Musterstadt HRB 12345"
+      invoice.seller.legal_organization = {id: "304755032", scheme_id: "0002", trading_business_name: "Musterfirma"}
+      xml = invoice.to_xml(version: 2)
+
+      assert_match(%r{</ram:Name>\s*<ram:Description>GmbH, Sitz Musterstadt, Amtsgericht Musterstadt HRB 12345</ram:Description>\s*<ram:SpecifiedLegalOrganization>\s*<ram:ID schemeID="0002">304755032</ram:ID>\s*<ram:TradingBusinessName>Musterfirma</ram:TradingBusinessName>\s*</ram:SpecifiedLegalOrganization>}, xml)
+      assert_valid_schematron(xml)
+    end
+
+    def test_trading_name_without_legal_registration_id
+      invoice = make_de_invoice
+      invoice.seller.legal_organization = {trading_business_name: "Musterfirma"}
+      xml = invoice.to_xml(version: 2)
+
+      assert_match(%r{<ram:SpecifiedLegalOrganization>\s*<ram:TradingBusinessName>Musterfirma</ram:TradingBusinessName>\s*</ram:SpecifiedLegalOrganization>}, xml)
+      assert_valid_schematron(xml)
+    end
+
+    def test_trading_name_and_description_are_left_out_in_v1
+      invoice = make_de_invoice
+      invoice.seller.description = "GmbH, Sitz Musterstadt"
+      invoice.seller.legal_organization = {trading_business_name: "Musterfirma"}
+      xml = invoice.to_xml(version: 1)
+
+      refute_match(/SpecifiedLegalOrganization|TradingBusinessName|GmbH, Sitz Musterstadt/, xml)
+      assert_valid_schematron(xml, version: 1)
+    end
+
     def test_electronic_addresses_of_seller_and_buyer
       invoice = make_eu_invoice
       invoice.seller.electronic_address = "invoices@depfu.com"

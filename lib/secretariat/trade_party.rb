@@ -18,12 +18,21 @@ module Secretariat
   ##
   # if trade_contact is given, person_name is ignored, person_name is just left
   # for keeping the API backwards compatible
+  #
+  # legal_organization is a hash with the optional keys
+  # - id: the legal registration identifier (BT-30 / BT-47)
+  # - scheme_id: its scheme (BT-30-1 / BT-47-1), "0002" when not given
+  # - trading_business_name: the trading name (BT-28 / BT-45)
+  #
+  # description is the seller's additional legal information (BT-33), it has
+  # no equivalent for the buyer
   TradeParty = Struct.new("TradeParty",
     :id,
     :name, :street1, :street2, :city, :postal_code, :country_id, :vat_id, :global_id, :global_id_scheme_id, :tax_id,
     :person_name, :legal_organization,
     :electronic_address, :electronic_address_scheme_id,
     :trade_contact,
+    :description,
     keyword_init: true) do
     ##
     # To be able to reusable for delivery contacts, including tax data, the
@@ -38,10 +47,20 @@ module Secretariat
         end
       end
       xml["ram"].Name name
-      if legal_organization.present?
+      if version == 2 && description.present?
+        xml["ram"].Description description # BT-33
+      end
+      legal_registration_id = legal_organization&.dig(:id)
+      trading_business_name = legal_organization&.dig(:trading_business_name) if version == 2
+      if legal_registration_id.present? || trading_business_name.present?
         xml["ram"].SpecifiedLegalOrganization do
-          xml["ram"].ID(schemeID: legal_organization[:scheme_id] || "0002") do
-            xml.text(legal_organization[:id])
+          if legal_registration_id.present?
+            xml["ram"].ID(schemeID: legal_organization[:scheme_id] || "0002") do
+              xml.text(legal_registration_id)
+            end
+          end
+          if trading_business_name.present?
+            xml["ram"].TradingBusinessName trading_business_name # BT-28 / BT-45
           end
         end
       end
